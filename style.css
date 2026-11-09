@@ -324,3 +324,62 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
   .chat-messages { min-height: 330px; }
   .history-item { align-items: flex-start; }
 }
+
+/* ============================================
+   SOCIAL LOGIN BUTTONS
+============================================ */
+
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  opacity: .65;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.oauth-divider::before,
+.oauth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+}
+
+.oauth-buttons {
+  display: grid;
+  gap: 12px;
+}
+
+.oauth-button {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background .2s, border-color .2s;
+}
+
+.oauth-button:hover {
+  background: #9875ff18;
+  border-color: #9875ff80;
+}
+
+.oauth-button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.oauth-icon {
+  display: inline-block;
+  margin-right: 10px;
+  font-weight: bold;
+  font-size: 16px;
+}
