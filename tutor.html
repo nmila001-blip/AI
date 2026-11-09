@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor | Chat</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-page="tutor">
+  <div id="app"></div>
+  <main class="main-content">
+    <header class="topbar">
+      <div><p class="eyebrow">YOUR PERSONAL STUDY ASSISTANT</p><h1>AI Tutor</h1></div>
+      <a class="profile-link" href="account.html"><span class="avatar">U</span><span id="top-user">My Account</span></a>
+    </header>
+
+    <section class="chat-layout">
+      <div class="chat-heading">
+        <div><span class="online-dot"></span><span class="small-muted">AI TUTOR · READY TO HELP</span></div>
+        <button class="quiet-button" id="clear-chat" type="button">Clear chat</button>
+      </div>
+
+      <div class="chat-settings">
+        <label>Subject
+          <select id="subject">
+            <option>Math</option>
+            <option>Science</option>
+            <option>History</option>
+            <option>English</option>
+            <option>Computer Science</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Learning level
+          <select id="level">
+            <option>Elementary</option>
+            <option selected>Middle school</option>
+            <option>High school</option>
+            <option>College</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="chat-messages" id="chat-messages" aria-live="polite">
+        <div class="message assistant-message">
+          <div class="message-avatar">✦</div>
+          <div class="message-content">
+            <strong>Your AI Tutor</strong>
+            <p>Hey! What are you working on today? Ask me a question, or tell me what topic you'd like to understand.</p>
+          </div>
+        </div>
+      </div>
+
+      <form class="chat-form" id="chat-form">
+        <textarea id="chat-input" rows="1" placeholder="Ask your tutor anything..." required></textarea>
+        <button class="send-button" id="send-button" type="submit" aria-label="Send message">↑</button>
+      </form>
+      <p class="chat-disclaimer">Your tutor can make mistakes. Check important answers with your class materials.</p>
+    </section>
+  </main>
+</body>
+</html>
