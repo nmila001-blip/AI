@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor | Subjects</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-page="subjects">
+  <div id="app"></div>
+  <main class="main-content">
+    <header class="topbar">
+      <div><p class="eyebrow">EXPLORE AND PRACTICE</p><h1>Subjects</h1></div>
+      <a class="profile-link" href="account.html"><span class="avatar">U</span><span id="top-user">My Account</span></a>
+    </header>
+
+    <section class="page-intro">
+      <h2>What do you want to learn?</h2>
+      <p>Choose a subject to start a tutoring session. You can change subjects whenever you like.</p>
+    </section>
+
+    <section class="subject-grid subject-grid-large">
+      <a class="subject-card purple" href="tutor.html?subject=Math"><span class="subject-icon">∑</span><h3>Mathematics</h3><p>Arithmetic, fractions, algebra, geometry, and more.</p><span class="card-action">Study mathematics →</span></a>
+      <a class="subject-card blue" href="tutor.html?subject=Science"><span class="subject-icon">⚛</span><h3>Science</h3><p>Biology, chemistry, physics, and scientific ideas.</p><span class="card-action">Study science →</span></a>
+      <a class="subject-card orange" href="tutor.html?subject=History"><span class="subject-icon">⌛</span><h3>History</h3><p>Historical events, people, timelines, and civilizations.</p><span class="card-action">Study history →</span></a>
+      <a class="subject-card pink" href="tutor.html?subject=English"><span class="subject-icon">Aa</span><h3>English</h3><p>Reading, writing, grammar, and vocabulary.</p><span class="card-action">Study English →</span></a>
+      <a class="subject-card green" href="tutor.html?subject=Computer%20Science"><span class="subject-icon">&lt;/&gt;</span><h3>Computer Science</h3><p>Programming, logic, algorithms, and technology.</p><span class="card-action">Study computing →</span></a>
+      <a class="subject-card slate" href="tutor.html?subject=Other"><span class="subject-icon">✧</span><h3>Other</h3><p>Ask questions about another topic you're learning.</p><span class="card-action">Explore a topic →</span></a>
+    </section>
+  </main>
+</body>
+</html>
