@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor | Study History</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-page="history">
+  <div id="app"></div>
+  <main class="main-content">
+    <header class="topbar">
+      <div><p class="eyebrow">YOUR LEARNING ACTIVITY</p><h1>Study History</h1></div>
+      <a class="profile-link" href="account.html"><span class="avatar">U</span><span id="top-user">My Account</span></a>
+    </header>
+
+    <section class="page-intro">
+      <h2>Your recent questions</h2>
+      <p>Look back at the questions you've asked your AI Tutor.</p>
+    </section>
+
+    <section class="history-toolbar">
+      <div><span class="stat-icon">◷</span><span id="history-count">0 saved questions</span></div>
+      <button class="quiet-button danger-text" id="clear-history" type="button">Clear history</button>
+    </section>
+
+    <section class="history-list" id="history-list">
+      <div class="empty-state">
+        <div class="empty-icon">⌕</div>
+        <h3>No study history yet</h3>
+        <p>Questions you send to your tutor will appear here.</p>
+        <a class="primary-button" href="tutor.html">Ask your first question →</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
