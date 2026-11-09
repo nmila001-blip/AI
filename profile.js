@@ -156,11 +156,9 @@ profileName.addEventListener("input", () => {
 async function socialLogin(provider) {
   const message = document.getElementById("auth-message");
 
-  const buttons = [
-    document.getElementById("google-login"),
-    document.getElementById("microsoft-login"),
-    document.getElementById("github-login")
-  ];
+const buttons = [
+  document.getElementById("google-login")
+];
 
   try {
     buttons.forEach(button => {
