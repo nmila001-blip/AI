@@ -94,7 +94,6 @@
   <div id="app"></div>
 
   <main class="main-content">
-
     <header class="topbar">
       <div>
         <p class="eyebrow">YOUR PERSONAL SPACE</p>
@@ -104,7 +103,6 @@
     </header>
 
     <section class="account-layout">
-
       <div class="panel account-info">
         <div class="large-avatar">✦</div>
         <p class="eyebrow">AI TUTOR ACCOUNT</p>
@@ -127,7 +125,6 @@
       </div>
 
       <div class="panel auth-panel">
-
         <div id="auth-forms">
           <p class="eyebrow">GET STARTED</p>
           <h2>Welcome back</h2>
@@ -136,7 +133,6 @@
           </p>
 
           <form id="auth-form">
-
             <label>Email address
               <input
                 id="email"
@@ -175,8 +171,40 @@
                 Create account
               </button>
             </div>
-
           </form>
+
+          <div class="oauth-divider">
+            <span>OR CONTINUE WITH</span>
+          </div>
+
+          <div class="oauth-buttons">
+            <button
+              type="button"
+              class="oauth-button"
+              id="google-login"
+            >
+              <span class="oauth-icon">G</span>
+              Continue with Google
+            </button>
+
+            <button
+              type="button"
+              class="oauth-button"
+              id="microsoft-login"
+            >
+              <span class="oauth-icon">⊞</span>
+              Continue with Microsoft
+            </button>
+
+            <button
+              type="button"
+              class="oauth-button"
+              id="github-login"
+            >
+              <span class="oauth-icon">⌘</span>
+              Continue with GitHub
+            </button>
+          </div>
 
           <p class="form-message" id="auth-message" role="status"></p>
         </div>
@@ -194,14 +222,12 @@
             Sign out
           </button>
         </div>
-
       </div>
     </section>
 
     <!-- PERSONAL PROFILE -->
 
     <section class="panel profile-panel" id="profile-panel" hidden>
-
       <p class="eyebrow">PERSONALIZATION</p>
       <h2>My Profile</h2>
       <p class="small-muted">
@@ -211,9 +237,7 @@
       <div class="profile-avatar" id="profile-avatar">✦</div>
 
       <form id="profile-form">
-
         <div class="profile-grid">
-
           <div class="profile-field">
             <label for="profile-name">Display name</label>
             <input
@@ -268,27 +292,14 @@
             <label for="profile-style">How do you prefer to learn?</label>
             <select id="profile-style">
               <option value="">Choose a learning style</option>
-              <option value="Step-by-step explanations">
-                Step-by-step explanations
-              </option>
-              <option value="Examples and demonstrations">
-                Examples and demonstrations
-              </option>
-              <option value="Practice questions and quizzes">
-                Practice questions and quizzes
-              </option>
-              <option value="Short and simple explanations">
-                Short and simple explanations
-              </option>
-              <option value="Detailed explanations">
-                Detailed explanations
-              </option>
-              <option value="A mixture of everything">
-                A mixture of everything
-              </option>
+              <option value="Step-by-step explanations">Step-by-step explanations</option>
+              <option value="Examples and demonstrations">Examples and demonstrations</option>
+              <option value="Practice questions and quizzes">Practice questions and quizzes</option>
+              <option value="Short and simple explanations">Short and simple explanations</option>
+              <option value="Detailed explanations">Detailed explanations</option>
+              <option value="A mixture of everything">A mixture of everything</option>
             </select>
           </div>
-
         </div>
 
         <button
@@ -304,10 +315,8 @@
         <p class="profile-note">
           Your profile is saved to your signed-in account. Avoid entering passwords, home addresses, or other sensitive information here.
         </p>
-
       </form>
     </section>
-
   </main>
 </body>
 </html>
