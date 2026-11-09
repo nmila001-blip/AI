@@ -19,13 +19,19 @@ const profileAvatar = document.getElementById("profile-avatar");
 
 let profileUserId = null;
 
-// Show a message
+// ============================================
+// PROFILE MESSAGES
+// ============================================
+
 function showProfileMessage(message, error = false) {
   profileMessage.textContent = message;
   profileMessage.style.color = error ? "#ff9299" : "#9bdcb8";
 }
 
-// Update avatar initials
+// ============================================
+// AVATAR
+// ============================================
+
 function updateProfileAvatar(name) {
   const trimmed = name.trim();
 
@@ -34,7 +40,10 @@ function updateProfileAvatar(name) {
     : "✦";
 }
 
-// Load saved profile
+// ============================================
+// LOAD PROFILE
+// ============================================
+
 async function loadProfile() {
   const { data, error } = await supabaseClient.auth.getSession();
 
@@ -66,7 +75,10 @@ async function loadProfile() {
   updateProfileAvatar(profileName.value);
 }
 
-// Save profile
+// ============================================
+// SAVE PROFILE
+// ============================================
+
 profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -118,7 +130,10 @@ profileForm.addEventListener("submit", async (event) => {
 
   } catch (error) {
     console.error("Profile save error:", error);
-    showProfileMessage(error.message || "Could not save your profile.", true);
+    showProfileMessage(
+      error.message || "Could not save your profile.",
+      true
+    );
 
   } finally {
     profileSave.disabled = false;
@@ -126,15 +141,92 @@ profileForm.addEventListener("submit", async (event) => {
   }
 });
 
-// Update avatar as the name changes
+// ============================================
+// UPDATE AVATAR WHILE TYPING
+// ============================================
+
 profileName.addEventListener("input", () => {
   updateProfileAvatar(profileName.value);
 });
 
-// Load profile when authentication changes
+// ============================================
+// SOCIAL LOGIN
+// ============================================
+
+async function socialLogin(provider) {
+  const message = document.getElementById("auth-message");
+
+  const buttons = [
+    document.getElementById("google-login"),
+    document.getElementById("microsoft-login"),
+    document.getElementById("github-login")
+  ];
+
+  try {
+    buttons.forEach(button => {
+      if (button) button.disabled = true;
+    });
+
+    if (message) {
+      message.textContent = "Connecting to " + provider + "...";
+      message.style.color = "#9bdcb8";
+    }
+
+    const options = {
+      redirectTo: "https://nmila001-blip.github.io/account.html"
+    };
+
+    // Microsoft requires the email scope.
+    if (provider === "azure") {
+      options.scopes = "email";
+    }
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: provider,
+      options: options
+    });
+
+    if (error) throw error;
+
+  } catch (error) {
+    console.error("Social login error:", error);
+
+    if (message) {
+      message.textContent = error.message;
+      message.style.color = "#ff9299";
+    }
+
+    buttons.forEach(button => {
+      if (button) button.disabled = false;
+    });
+  }
+}
+
+// Google
+document.getElementById("google-login")?.addEventListener(
+  "click",
+  () => socialLogin("google")
+);
+
+// Microsoft
+document.getElementById("microsoft-login")?.addEventListener(
+  "click",
+  () => socialLogin("azure")
+);
+
+// GitHub
+document.getElementById("github-login")?.addEventListener(
+  "click",
+  () => socialLogin("github")
+);
+
+// ============================================
+// AUTHENTICATION CHANGES
+// ============================================
+
 supabaseClient.auth.onAuthStateChange(() => {
   setTimeout(loadProfile, 0);
 });
 
-// Initial load
+// Initial profile load
 loadProfile();
