@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor | Account</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-page="account">
+  <div id="app"></div>
+  <main class="main-content">
+    <header class="topbar">
+      <div><p class="eyebrow">YOUR PERSONAL SPACE</p><h1>Account</h1></div>
+      <span class="account-status" id="account-status">Guest</span>
+    </header>
+
+    <section class="account-layout">
+      <div class="panel account-info">
+        <div class="large-avatar">✦</div>
+        <p class="eyebrow">AI TUTOR ACCOUNT</p>
+        <h2 id="account-name">Welcome!</h2>
+        <p id="account-email">Create an account to sign in and keep your session available across visits.</p>
+        <div class="account-benefit"><span>✓</span> Sign in from your devices</div>
+        <div class="account-benefit"><span>✓</span> Keep your account session</div>
+        <div class="account-benefit"><span>✓</span> Use your personal AI tutor</div>
+      </div>
+
+      <div class="panel auth-panel">
+        <div id="auth-forms">
+          <p class="eyebrow">GET STARTED</p>
+          <h2>Welcome back</h2>
+          <p class="small-muted">Sign in or create your account below.</p>
+
+          <form id="auth-form">
+            <label>Email address
+              <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+            </label>
+            <label>Password
+              <input id="password" type="password" placeholder="At least 6 characters" minlength="6" autocomplete="current-password" required>
+            </label>
+            <div class="auth-buttons">
+              <button class="primary-button" type="submit" id="login-button">Sign in</button>
+              <button class="secondary-button" type="button" id="signup-button">Create account</button>
+            </div>
+          </form>
+          <p class="form-message" id="auth-message" role="status"></p>
+        </div>
+
+        <div id="signed-in-panel" hidden>
+          <p class="eyebrow">ACCOUNT ACTIVE</p>
+          <h2>You're signed in!</h2>
+          <p id="signed-in-email"></p>
+          <button class="secondary-button" id="logout-button" type="button">Sign out</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
