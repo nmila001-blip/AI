@@ -6,46 +6,178 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Tutor | Account</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .profile-panel {
+      margin-top: 24px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .profile-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .profile-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .profile-field label {
+      font-weight: 600;
+    }
+
+    .profile-field input,
+    .profile-field textarea,
+    .profile-field select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border, #333);
+      background: var(--surface, #151525);
+      color: inherit;
+      font: inherit;
+    }
+
+    .profile-field textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .profile-save {
+      margin-top: 22px;
+    }
+
+    .profile-avatar {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #7555e8, #a36be8);
+      color: white;
+      font-size: 25px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .profile-note {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: .7;
+    }
+
+    @media (max-width: 650px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-field.full {
+        grid-column: auto;
+      }
+    }
+  </style>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js" defer></script>
+  <script src="profile.js" defer></script>
 </head>
+
 <body data-page="account">
   <div id="app"></div>
+
   <main class="main-content">
+
     <header class="topbar">
-      <div><p class="eyebrow">YOUR PERSONAL SPACE</p><h1>Account</h1></div>
+      <div>
+        <p class="eyebrow">YOUR PERSONAL SPACE</p>
+        <h1>Account</h1>
+      </div>
       <span class="account-status" id="account-status">Guest</span>
     </header>
 
     <section class="account-layout">
+
       <div class="panel account-info">
         <div class="large-avatar">✦</div>
         <p class="eyebrow">AI TUTOR ACCOUNT</p>
         <h2 id="account-name">Welcome!</h2>
-        <p id="account-email">Create an account to sign in and keep your session available across visits.</p>
-        <div class="account-benefit"><span>✓</span> Sign in from your devices</div>
-        <div class="account-benefit"><span>✓</span> Keep your account session</div>
-        <div class="account-benefit"><span>✓</span> Use your personal AI tutor</div>
+        <p id="account-email">
+          Create an account to sign in and keep your session available across visits.
+        </p>
+
+        <div class="account-benefit">
+          <span>✓</span> Sign in from your devices
+        </div>
+
+        <div class="account-benefit">
+          <span>✓</span> Keep your account session
+        </div>
+
+        <div class="account-benefit">
+          <span>✓</span> Use your personal AI tutor
+        </div>
       </div>
 
       <div class="panel auth-panel">
+
         <div id="auth-forms">
           <p class="eyebrow">GET STARTED</p>
           <h2>Welcome back</h2>
-          <p class="small-muted">Sign in or create your account below.</p>
+          <p class="small-muted">
+            Sign in or create your account below.
+          </p>
 
           <form id="auth-form">
+
             <label>Email address
-              <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              >
             </label>
+
             <label>Password
-              <input id="password" type="password" placeholder="At least 6 characters" minlength="6" autocomplete="current-password" required>
+              <input
+                id="password"
+                type="password"
+                placeholder="At least 6 characters"
+                minlength="6"
+                autocomplete="current-password"
+                required
+              >
             </label>
+
             <div class="auth-buttons">
-              <button class="primary-button" type="submit" id="login-button">Sign in</button>
-              <button class="secondary-button" type="button" id="signup-button">Create account</button>
+              <button
+                class="primary-button"
+                type="submit"
+                id="login-button"
+              >
+                Sign in
+              </button>
+
+              <button
+                class="secondary-button"
+                type="button"
+                id="signup-button"
+              >
+                Create account
+              </button>
             </div>
+
           </form>
+
           <p class="form-message" id="auth-message" role="status"></p>
         </div>
 
@@ -53,10 +185,129 @@
           <p class="eyebrow">ACCOUNT ACTIVE</p>
           <h2>You're signed in!</h2>
           <p id="signed-in-email"></p>
-          <button class="secondary-button" id="logout-button" type="button">Sign out</button>
+
+          <button
+            class="secondary-button"
+            id="logout-button"
+            type="button"
+          >
+            Sign out
+          </button>
         </div>
+
       </div>
     </section>
+
+    <!-- PERSONAL PROFILE -->
+
+    <section class="panel profile-panel" id="profile-panel" hidden>
+
+      <p class="eyebrow">PERSONALIZATION</p>
+      <h2>My Profile</h2>
+      <p class="small-muted">
+        Tell your AI Tutor about yourself so it can make your learning experience more personal.
+      </p>
+
+      <div class="profile-avatar" id="profile-avatar">✦</div>
+
+      <form id="profile-form">
+
+        <div class="profile-grid">
+
+          <div class="profile-field">
+            <label for="profile-name">Display name</label>
+            <input
+              id="profile-name"
+              type="text"
+              maxlength="60"
+              placeholder="What should we call you?"
+            >
+          </div>
+
+          <div class="profile-field">
+            <label for="profile-grade">Grade / education level</label>
+            <select id="profile-grade">
+              <option value="">Choose your level</option>
+              <option>Elementary school</option>
+              <option>Middle school</option>
+              <option>High school</option>
+              <option>College</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="profile-field full">
+            <label for="profile-about">About me</label>
+            <textarea
+              id="profile-about"
+              maxlength="500"
+              placeholder="Tell your tutor a little about yourself, your interests, and what you enjoy learning..."
+            ></textarea>
+          </div>
+
+          <div class="profile-field full">
+            <label for="profile-subjects">Favorite subjects</label>
+            <input
+              id="profile-subjects"
+              type="text"
+              maxlength="200"
+              placeholder="Example: Math, Science, History, Computer Science"
+            >
+          </div>
+
+          <div class="profile-field full">
+            <label for="profile-goals">Learning goals</label>
+            <textarea
+              id="profile-goals"
+              maxlength="500"
+              placeholder="What do you want to improve or accomplish?"
+            ></textarea>
+          </div>
+
+          <div class="profile-field full">
+            <label for="profile-style">How do you prefer to learn?</label>
+            <select id="profile-style">
+              <option value="">Choose a learning style</option>
+              <option value="Step-by-step explanations">
+                Step-by-step explanations
+              </option>
+              <option value="Examples and demonstrations">
+                Examples and demonstrations
+              </option>
+              <option value="Practice questions and quizzes">
+                Practice questions and quizzes
+              </option>
+              <option value="Short and simple explanations">
+                Short and simple explanations
+              </option>
+              <option value="Detailed explanations">
+                Detailed explanations
+              </option>
+              <option value="A mixture of everything">
+                A mixture of everything
+              </option>
+            </select>
+          </div>
+
+        </div>
+
+        <button
+          class="primary-button profile-save"
+          id="profile-save"
+          type="submit"
+        >
+          Save Profile
+        </button>
+
+        <p class="form-message" id="profile-message" role="status"></p>
+
+        <p class="profile-note">
+          Your profile is saved to your signed-in account. Avoid entering passwords, home addresses, or other sensitive information here.
+        </p>
+
+      </form>
+    </section>
+
   </main>
 </body>
 </html>
