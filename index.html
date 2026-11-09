@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Tutor</title>
+<style>
+  :root { --bg:#f4f6fb; --card:#fff; --ink:#1f2937; --muted:#6b7280; --accent:#4f46e5; --me:#e0e7ff; --ai:#f3f4f6; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:var(--bg); color:var(--ink); }
+  .app { max-width:720px; margin:0 auto; height:100vh; display:flex; flex-direction:column; padding:16px; gap:12px; }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
+  h1 { font-size:20px; margin:0; }
+  .controls { display:flex; gap:8px; }
+  select, input, button { font:inherit; padding:8px 10px; border-radius:8px; border:1px solid #d1d5db; background:#fff; }
+  #chat { flex:1; overflow-y:auto; background:var(--card); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .msg { max-width:85%; padding:10px 14px; border-radius:14px; line-height:1.45; white-space:pre-wrap; }
+  .user { align-self:flex-end; background:var(--me); }
+  .assistant { align-self:flex-start; background:var(--ai); }
+  .note { color:var(--muted); font-size:14px; text-align:center; }
+  form { display:flex; gap:8px; }
+  form input { flex:1; }
+  form button { background:var(--accent); color:#fff; border:none; cursor:pointer; padding:8px 18px; }
+  form button:disabled { opacity:.5; cursor:default; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🎓 AI Tutor</h1>
+    <div class="controls">
+      <select id="subject">
+        <option>Math</option><option>Science</option><option>History</option>
+        <option>English</option><option>Computer Science</option><option>Other</option>
+      </select>
+      <select id="level">
+        <option>Elementary</option><option>Middle school</option>
+        <option selected>High school</option><option>College</option>
+      </select>
+    </div>
+  </header>
+
+  <div id="chat">
+    <div class="note">Ask me about a topic or paste a problem. I'll guide you to the answer instead of just giving it.</div>
+  </div>
+
+  <form id="form">
+    <input id="input" placeholder="Type your question..." autocomplete="off" required>
+    <button id="send" type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+  // Fill these in from Supabase: Project Settings > API
+  const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+  const FUNCTION_URL = SUPABASE_URL + "/functions/v1/tutor";
+  const sessionId = crypto.randomUUID();
+  const history = [];
+
+  const chat = document.getElementById("chat");
+  const form = document.getElementById("form");
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("send");
+
+  function addMessage(role, text) {
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = "";
+    addMessage("user", text);
+    history.push({ role: "user", content: text });
+
+    sendBtn.disabled = true;
+    const thinking = addMessage("assistant", "Thinking...");
+
+    try {
+      const res = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+          "apikey": SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({
+          messages: history,
+          subject: document.getElementById("subject").value,
+          level: document.getElementById("level").value,
+          session_id: sessionId
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Request failed");
+      thinking.textContent = data.reply;
+      history.push({ role: "assistant", content: data.reply });
+    } catch (err) {
+      thinking.textContent = "Something went wrong. Please try again.";
+      history.pop();
+      console.error(err);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+</script>
+</body>
+</html>
