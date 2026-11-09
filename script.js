@@ -264,7 +264,18 @@ function setupChat() {
   const subjectSelect = document.getElementById("subject");
   const levelSelect = document.getElementById("level");
   const clearButton = document.getElementById("clear-chat");
-
+  
+  input.addEventListener("keydown", (event) => {
+      if (
+          event.key === "Enter" &&
+          !event.shiftKey &&
+          !event.isComposing
+      ) {
+          event.preventDefault();
+          form.requestSubmit();
+      }
+  });
+  
   const requestedSubject = new URLSearchParams(location.search).get("subject");
 
   if (requestedSubject && subjectSelect) {
