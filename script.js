@@ -43,9 +43,9 @@ const navigation = [
   { page: "dashboard", label: "Dashboard", icon: "⌂", url: "index.html" },
   { page: "tutor", label: "AI Tutor", icon: "✦", url: "tutor.html" },
   { page: "subjects", label: "Subjects", icon: "▦", url: "subjects.html" },
+  { page: "friends", label: "Friends", icon: "♧", url: "friends.html" },
   { page: "history", label: "Study History", icon: "◷", url: "history.html" },
   { page: "account", label: "Account", icon: "◎", url: "account.html" }
-  { page: "friends", label: "Friends", icon: "♧", url: "friends.html" },
 ];
 
 function createSidebar() {
