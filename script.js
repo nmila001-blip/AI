@@ -19,6 +19,10 @@ let currentSession = null;
 let currentUser = null;
 let chatMessages = [];
 
+let activeMessageConversation = null;
+let activeMessageFriend = null;
+let activeMessageChannel = null;
+
 // ============================================
 // SESSION
 // ============================================
@@ -43,6 +47,7 @@ const navigation = [
   { page: "tutor", label: "AI Tutor", icon: "✦", url: "tutor.html" },
   { page: "subjects", label: "Subjects", icon: "▦", url: "subjects.html" },
   { page: "friends", label: "Friends", icon: "♧", url: "friends.html" },
+  { page: "messages", label: "Messages", icon: "✉", url: "messages.html" },
   { page: "history", label: "Study History", icon: "◷", url: "history.html" },
   { page: "account", label: "Account", icon: "◎", url: "account.html" }
 ];
@@ -270,10 +275,7 @@ function setupChat() {
   const levelSelect = document.getElementById("level");
   const clearButton = document.getElementById("clear-chat");
 
-  if (!input || !sendButton || !subjectSelect || !levelSelect) {
-    console.error("AI Tutor: One or more chat elements are missing.");
-    return;
-  }
+  if (!input || !sendButton || !subjectSelect || !levelSelect) return;
 
   input.addEventListener("keydown", event => {
     if (
@@ -459,13 +461,8 @@ function updateAccountUI() {
     signedInEmail.textContent = currentUser?.email || "";
   }
 
-  if (authForms) {
-    authForms.hidden = !!currentUser;
-  }
-
-  if (signedInPanel) {
-    signedInPanel.hidden = !currentUser;
-  }
+  if (authForms) authForms.hidden = !!currentUser;
+  if (signedInPanel) signedInPanel.hidden = !currentUser;
 
   updateDashboard();
   renderHistory();
@@ -482,10 +479,7 @@ function setupAccount() {
   const signupButton = document.getElementById("signup-button");
   const logoutButton = document.getElementById("logout-button");
 
-  if (!emailInput || !passwordInput || !loginButton || !signupButton) {
-    console.error("Account: One or more authentication elements are missing.");
-    return;
-  }
+  if (!emailInput || !passwordInput || !loginButton || !signupButton) return;
 
   function showAuthMessage(text, isError = false) {
     if (!message) return;
@@ -653,10 +647,6 @@ function setupFriends() {
   const profileForm = document.getElementById("friends-profile-form");
   const profileInput = document.getElementById("friends-display-name");
 
-  // IMPORTANT:
-  // Listen for the search form submission at the document level.
-  // Capture mode catches it before the browser can perform a normal
-  // form submission and reload the page.
   document.addEventListener("submit", event => {
     if (event.target?.id !== "friends-search-form") return;
 
@@ -665,9 +655,7 @@ function setupFriends() {
     event.stopImmediatePropagation();
 
     const searchInput = document.getElementById("friends-search-input");
-    const term = searchInput?.value.trim() || "";
-
-    searchStudents(term);
+    searchStudents(searchInput?.value.trim() || "");
   }, true);
 
   profileForm?.addEventListener("submit", async event => {
@@ -767,11 +755,6 @@ async function loadFriendsPage() {
 
   const profileInput = document.getElementById("friends-display-name");
 
-  const searchResults = document.getElementById("friends-search-results");
-  const incomingContainer = document.getElementById("friends-incoming");
-  const outgoingContainer = document.getElementById("friends-outgoing");
-  const friendsContainer = document.getElementById("friends-list");
-
   if (!currentUser) {
     if (profileInput) profileInput.disabled = true;
 
@@ -780,25 +763,17 @@ async function loadFriendsPage() {
       "Sign in to set your display name."
     );
 
-    if (searchResults) {
-      searchResults.innerHTML =
-        friendEmpty("Sign in to search for other students.");
-    }
+    document.getElementById("friends-search-results").innerHTML =
+      friendEmpty("Sign in to search for other students.");
 
-    if (incomingContainer) {
-      incomingContainer.innerHTML =
-        friendEmpty("Sign in to view incoming requests.");
-    }
+    document.getElementById("friends-incoming").innerHTML =
+      friendEmpty("Sign in to view incoming requests.");
 
-    if (outgoingContainer) {
-      outgoingContainer.innerHTML =
-        friendEmpty("Sign in to view sent requests.");
-    }
+    document.getElementById("friends-outgoing").innerHTML =
+      friendEmpty("Sign in to view sent requests.");
 
-    if (friendsContainer) {
-      friendsContainer.innerHTML =
-        friendEmpty("Sign in to see your friends.");
-    }
+    document.getElementById("friends-list").innerHTML =
+      friendEmpty("Sign in to see your friends.");
 
     return;
   }
@@ -1068,7 +1043,6 @@ async function sendFriendRequest(userId, button) {
     await loadFriendsPage();
 
     const searchInput = document.getElementById("friends-search-input");
-
     if (searchInput) {
       await searchStudents(searchInput.value.trim());
     }
@@ -1132,6 +1106,431 @@ async function cancelFriendRequest(requestId, button) {
 }
 
 // ============================================
+// PRIVATE MESSAGES
+// ============================================
+
+function setMessageStatus(message, isError = false) {
+  const status = document.getElementById("message-status");
+  if (!status) return;
+
+  status.textContent = message;
+  status.style.color = isError ? "#ff9299" : "#9bdcb8";
+}
+
+function getSortedUserIds(firstId, secondId) {
+  return [firstId, secondId].sort();
+}
+
+function setupMessages() {
+  if (page !== "messages") return;
+
+  const friendList = document.getElementById("message-friends");
+  const form = document.getElementById("message-form");
+  const input = document.getElementById("message-input");
+
+  friendList?.addEventListener("click", async event => {
+    const button = event.target.closest("[data-message-user]");
+    if (!button) return;
+
+    await openMessageConversation(
+      button.dataset.messageUser,
+      button.dataset.messageName
+    );
+  });
+
+  input?.addEventListener("keydown", event => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.isComposing
+    ) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  form?.addEventListener("submit", async event => {
+    event.preventDefault();
+    await sendPrivateMessage();
+  });
+}
+
+async function loadMessagesPage() {
+  if (page !== "messages") return;
+
+  const friendList = document.getElementById("message-friends");
+
+  if (!currentUser) {
+    if (friendList) {
+      friendList.innerHTML =
+        `<div class="messages-placeholder">Sign in to message your friends.</div>`;
+    }
+
+    document.getElementById("message-empty").hidden = false;
+    document.getElementById("message-thread").hidden = true;
+
+    await closeMessageChannel();
+    return;
+  }
+
+  if (friendList) {
+    friendList.innerHTML =
+      `<div class="messages-placeholder">Loading conversations...</div>`;
+  }
+
+  try {
+    const { data: requests, error: requestError } =
+      await supabaseClient
+        .from("friend_requests")
+        .select("sender_id, receiver_id")
+        .eq("status", "accepted");
+
+    if (requestError) throw requestError;
+
+    const friendIds = [...new Set(
+      (requests || []).map(request =>
+        request.sender_id === currentUser.id
+          ? request.receiver_id
+          : request.receiver_id === currentUser.id
+            ? request.sender_id
+            : null
+      ).filter(Boolean)
+    )];
+
+    if (!friendIds.length) {
+      friendList.innerHTML =
+        `<div class="messages-placeholder">You don't have any accepted friends yet. Add friends first!</div>`;
+      return;
+    }
+
+    const profiles = await getProfilesByIds(friendIds);
+
+    const { data: conversations, error: conversationError } =
+      await supabaseClient
+        .from("conversations")
+        .select("id, user_one, user_two")
+        .or(`user_one.eq.${currentUser.id},user_two.eq.${currentUser.id}`);
+
+    if (conversationError) throw conversationError;
+
+    const conversationByFriend = {};
+
+    (conversations || []).forEach(conversation => {
+      const friendId = conversation.user_one === currentUser.id
+        ? conversation.user_two
+        : conversation.user_one;
+
+      conversationByFriend[friendId] = conversation;
+    });
+
+    const conversationIds = (conversations || []).map(item => item.id);
+    const latestByConversation = {};
+
+    if (conversationIds.length) {
+      const { data: recentMessages, error: messageError } =
+        await supabaseClient
+          .from("chat_messages")
+          .select("conversation_id, body, created_at, sender_id")
+          .in("conversation_id", conversationIds)
+          .order("created_at", { ascending: false })
+          .limit(200);
+
+      if (messageError) throw messageError;
+
+      (recentMessages || []).forEach(message => {
+        if (!latestByConversation[message.conversation_id]) {
+          latestByConversation[message.conversation_id] = message;
+        }
+      });
+    }
+
+    friendList.innerHTML = friendIds.map(friendId => {
+      const profile = profiles[friendId] || { display_name: "Student" };
+      const conversation = conversationByFriend[friendId];
+      const latest = conversation
+        ? latestByConversation[conversation.id]
+        : null;
+
+      const preview = latest
+        ? latest.body
+        : "Start a conversation";
+
+      const activeClass =
+        activeMessageFriend === friendId ? "active" : "";
+
+      return `
+        <button
+          type="button"
+          class="message-friend ${activeClass}"
+          data-message-user="${escapeHTML(friendId)}"
+          data-message-name="${escapeHTML(profile.display_name)}"
+        >
+          <div class="message-friend-avatar">
+            ${escapeHTML(getInitial(profile.display_name))}
+          </div>
+          <div class="message-friend-info">
+            <strong>${escapeHTML(profile.display_name)}</strong>
+            <p>${escapeHTML(preview)}</p>
+          </div>
+        </button>
+      `;
+    }).join("");
+
+  } catch (error) {
+    console.error("Messages loading error:", error);
+
+    friendList.innerHTML =
+      `<div class="messages-placeholder">Couldn't load messages. ${escapeHTML(error.message)}</div>`;
+  }
+}
+
+async function getOrCreateConversation(friendId) {
+  if (!currentUser || !friendId) {
+    throw new Error("You must be signed in to start a conversation.");
+  }
+
+  const [userOne, userTwo] = getSortedUserIds(
+    currentUser.id,
+    friendId
+  );
+
+  const { data: existing, error: lookupError } =
+    await supabaseClient
+      .from("conversations")
+      .select("id, user_one, user_two")
+      .eq("user_one", userOne)
+      .eq("user_two", userTwo)
+      .maybeSingle();
+
+  if (lookupError) throw lookupError;
+  if (existing) return existing;
+
+  const { data: created, error: createError } =
+    await supabaseClient
+      .from("conversations")
+      .insert({
+        user_one: userOne,
+        user_two: userTwo
+      })
+      .select("id, user_one, user_two")
+      .single();
+
+  if (!createError) return created;
+
+  // Another device may have created the conversation at the same time.
+  if (createError.code === "23505") {
+    const { data: retry, error: retryError } =
+      await supabaseClient
+        .from("conversations")
+        .select("id, user_one, user_two")
+        .eq("user_one", userOne)
+        .eq("user_two", userTwo)
+        .single();
+
+    if (retryError) throw retryError;
+    return retry;
+  }
+
+  throw createError;
+}
+
+async function openMessageConversation(friendId, friendName) {
+  if (!currentUser) return;
+
+  try {
+    setMessageStatus("");
+
+    const conversation = await getOrCreateConversation(friendId);
+
+    activeMessageConversation = conversation.id;
+    activeMessageFriend = friendId;
+
+    document.getElementById("message-empty").hidden = true;
+    document.getElementById("message-thread").hidden = false;
+
+    document.getElementById("message-friend-name").textContent =
+      friendName || "Friend";
+
+    document.getElementById("message-friend-avatar").textContent =
+      getInitial(friendName);
+
+    document.getElementById("message-input").disabled = false;
+    document.getElementById("message-send").disabled = false;
+
+    document.querySelectorAll(".message-friend").forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.dataset.messageUser === friendId
+      );
+    });
+
+    await loadConversationMessages(conversation.id);
+    await subscribeToConversation(conversation.id);
+
+    document.getElementById("message-input").focus();
+
+  } catch (error) {
+    console.error("Could not open conversation:", error);
+    setMessageStatus(error.message || "Couldn't open this conversation.", true);
+  }
+}
+
+async function loadConversationMessages(conversationId) {
+  const list = document.getElementById("message-list");
+
+  list.innerHTML =
+    `<div class="messages-placeholder">Loading messages...</div>`;
+
+  const { data, error } = await supabaseClient
+    .from("chat_messages")
+    .select("id, conversation_id, sender_id, body, created_at")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: true })
+    .limit(200);
+
+  if (error) throw error;
+
+  list.innerHTML = "";
+
+  if (!data?.length) {
+    list.innerHTML =
+      `<div class="messages-placeholder">No messages yet. Say hello!</div>`;
+    return;
+  }
+
+  data.forEach(appendPrivateMessage);
+  list.scrollTop = list.scrollHeight;
+}
+
+function appendPrivateMessage(message) {
+  const list = document.getElementById("message-list");
+  if (!list) return;
+
+  if (document.querySelector(
+    `[data-message-id="${message.id}"]`
+  )) {
+    return;
+  }
+
+  list.querySelector(".messages-placeholder")?.remove();
+
+  const isMine = message.sender_id === currentUser?.id;
+
+  const row = document.createElement("div");
+  row.className = `message-row ${isMine ? "mine" : ""}`;
+  row.dataset.messageId = message.id;
+
+  const sender = document.createElement("span");
+  sender.className = "message-sender";
+  sender.textContent = isMine ? "You" : (activeMessageFriendName() || "Friend");
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-bubble";
+  bubble.textContent = message.body;
+
+  const time = document.createElement("span");
+  time.className = "message-time";
+  time.textContent = new Date(message.created_at).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  row.append(sender, bubble, time);
+  list.appendChild(row);
+  list.scrollTop = list.scrollHeight;
+}
+
+function activeMessageFriendName() {
+  return document.getElementById("message-friend-name")?.textContent || "Friend";
+}
+
+async function subscribeToConversation(conversationId) {
+  await closeMessageChannel();
+
+  activeMessageChannel = supabaseClient
+    .channel("private-chat-" + conversationId)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "chat_messages",
+        filter: `conversation_id=eq.${conversationId}`
+      },
+      payload => {
+        if (activeMessageConversation !== conversationId) return;
+        appendPrivateMessage(payload.new);
+      }
+    )
+    .subscribe(status => {
+      if (status === "SUBSCRIBED") {
+        setMessageStatus("");
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        setMessageStatus("Live updates disconnected. Refresh to reconnect.", true);
+      }
+    });
+}
+
+async function closeMessageChannel() {
+  if (!activeMessageChannel) return;
+
+  await supabaseClient.removeChannel(activeMessageChannel);
+  activeMessageChannel = null;
+}
+
+async function sendPrivateMessage() {
+  const input = document.getElementById("message-input");
+  const sendButton = document.getElementById("message-send");
+
+  if (!currentUser || !activeMessageConversation) {
+    setMessageStatus("Choose a friend before sending a message.", true);
+    return;
+  }
+
+  const body = input.value.trim();
+
+  if (!body) return;
+
+  if (body.length > 4000) {
+    setMessageStatus("Messages must be 4,000 characters or fewer.", true);
+    return;
+  }
+
+  input.disabled = true;
+  sendButton.disabled = true;
+  setMessageStatus("");
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("chat_messages")
+      .insert({
+        conversation_id: activeMessageConversation,
+        sender_id: currentUser.id,
+        body
+      })
+      .select("id, conversation_id, sender_id, body, created_at")
+      .single();
+
+    if (error) throw error;
+
+    appendPrivateMessage(data);
+    input.value = "";
+
+    await loadMessagesPage();
+
+    input.focus();
+
+  } catch (error) {
+    console.error("Message sending error:", error);
+    setMessageStatus(error.message || "Message could not be sent.", true);
+
+  } finally {
+    input.disabled = false;
+    sendButton.disabled = false;
+  }
+}
+
+// ============================================
 // BUTTONS
 // ============================================
 
@@ -1163,11 +1562,16 @@ async function startApp() {
   setupAccount();
   setupHistoryButtons();
   setupFriends();
+  setupMessages();
 
   await refreshAccount();
 
   if (page === "friends") {
     await loadFriendsPage();
+  }
+
+  if (page === "messages") {
+    await loadMessagesPage();
   }
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -1179,6 +1583,10 @@ async function startApp() {
 
       if (page === "friends") {
         loadFriendsPage();
+      }
+
+      if (page === "messages") {
+        loadMessagesPage();
       }
     }, 0);
   });
