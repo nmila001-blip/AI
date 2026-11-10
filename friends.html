@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor | Friends</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-page="friends">
+  <div id="app"></div>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">YOUR STUDY COMMUNITY</p>
+        <h1>Friends</h1>
+      </div>
+      <a class="profile-link" href="account.html">
+        <span class="avatar">U</span>
+        <span id="top-user">My Account</span>
+      </a>
+    </header>
+
+    <section class="page-intro">
+      <h2>Learn together.</h2>
+      <p>Find classmates, connect with friends, and build your study community.</p>
+    </section>
+
+    <section class="panel friends-profile">
+      <p class="eyebrow">YOUR PUBLIC PROFILE</p>
+      <h2>Set up your profile</h2>
+      <p class="friends-description">
+        Choose a username so other students can find you.
+      </p>
+
+      <form id="friends-profile-form" class="friends-profile-form">
+        <label>
+          Display name
+          <input id="friends-display-name" maxlength="40"
+                 placeholder="Your display name" required>
+        </label>
+
+        <label>
+          Username
+          <input id="friends-username" maxlength="24"
+                 placeholder="e.g. noah123" required>
+        </label>
+
+        <button class="primary-button" id="friends-profile-save" type="submit">
+          Save profile
+        </button>
+      </form>
+
+      <p id="friends-profile-message" class="form-message" aria-live="polite"></p>
+    </section>
+
+    <section class="panel friends-search">
+      <p class="eyebrow">DISCOVER STUDENTS</p>
+      <h2>Find people</h2>
+      <p class="friends-description">
+        Search for students using their username or display name.
+      </p>
+
+      <form id="friends-search-form" class="friends-search-form">
+        <input id="friends-search-input"
+               type="search"
+               maxlength="40"
+               placeholder="Search usernames or names..."
+               autocomplete="off">
+        <button class="primary-button" type="submit">Search</button>
+      </form>
+
+      <div id="friends-search-results" class="friends-list">
+        <div class="empty-state">
+          <div class="empty-icon">⌕</div>
+          <h3>Find your classmates</h3>
+          <p>Search for someone to send them a friend request.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="friends-columns">
+      <div class="panel">
+        <p class="eyebrow">YOUR CONNECTIONS</p>
+        <h2>Incoming requests</h2>
+        <div id="friends-incoming" class="friends-list">
+          <p class="friends-loading">Loading requests...</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="eyebrow">WAITING FOR A RESPONSE</p>
+        <h2>Sent requests</h2>
+        <div id="friends-outgoing" class="friends-list">
+          <p class="friends-loading">Loading requests...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel friends-friends-panel">
+      <p class="eyebrow">YOUR STUDY COMMUNITY</p>
+      <h2>My friends</h2>
+      <div id="friends-list" class="friends-list">
+        <p class="friends-loading">Loading friends...</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
