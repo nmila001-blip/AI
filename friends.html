@@ -25,32 +25,27 @@
     </header>
 
     <section class="page-intro">
-      <h2>Learn together.</h2>
+      <h2>Study together.</h2>
       <p>Find classmates, connect with friends, and build your study community.</p>
     </section>
 
     <section class="panel friends-profile">
-      <p class="eyebrow">YOUR PUBLIC PROFILE</p>
-      <h2>Set up your profile</h2>
+      <p class="eyebrow">YOUR PROFILE</p>
+      <h2>Display name</h2>
       <p class="friends-description">
-        Choose a username so other students can find you.
+        This is the name other students will see when they find you.
       </p>
 
       <form id="friends-profile-form" class="friends-profile-form">
         <label>
-          Display name
-          <input id="friends-display-name" maxlength="40"
-                 placeholder="Your display name" required>
+          Your display name
+          <input id="friends-display-name"
+                 maxlength="40"
+                 placeholder="Enter your display name"
+                 required>
         </label>
-
-        <label>
-          Username
-          <input id="friends-username" maxlength="24"
-                 placeholder="e.g. noah123" required>
-        </label>
-
         <button class="primary-button" id="friends-profile-save" type="submit">
-          Save profile
+          Save name
         </button>
       </form>
 
@@ -61,14 +56,14 @@
       <p class="eyebrow">DISCOVER STUDENTS</p>
       <h2>Find people</h2>
       <p class="friends-description">
-        Search for students using their username or display name.
+        Search for someone using their display name.
       </p>
 
       <form id="friends-search-form" class="friends-search-form">
         <input id="friends-search-input"
                type="search"
                maxlength="40"
-               placeholder="Search usernames or names..."
+               placeholder="Search display names..."
                autocomplete="off">
         <button class="primary-button" type="submit">Search</button>
       </form>
@@ -77,7 +72,7 @@
         <div class="empty-state">
           <div class="empty-icon">⌕</div>
           <h3>Find your classmates</h3>
-          <p>Search for someone to send them a friend request.</p>
+          <p>Search for someone by their display name.</p>
         </div>
       </div>
     </section>
