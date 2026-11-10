@@ -171,7 +171,7 @@ const buttons = [
     }
 
     const options = {
-      redirectTo: "https://nmila001-blip.github.io/account.html"
+      redirectTo: "https://nmila001-blip.github.io/AI/account.html"
     };
 
     // Microsoft requires the email scope.
@@ -205,19 +205,6 @@ document.getElementById("google-login")?.addEventListener(
   "click",
   () => socialLogin("google")
 );
-
-// Microsoft
-document.getElementById("microsoft-login")?.addEventListener(
-  "click",
-  () => socialLogin("azure")
-);
-
-// GitHub
-document.getElementById("github-login")?.addEventListener(
-  "click",
-  () => socialLogin("github")
-);
-
 // ============================================
 // AUTHENTICATION CHANGES
 // ============================================
