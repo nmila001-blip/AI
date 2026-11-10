@@ -385,7 +385,7 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
 }
 
 /* ============================================
-   FRIENDS AND USER DISCOVERY
+   FRIENDS
 ============================================ */
 
 .friends-profile,
@@ -402,19 +402,19 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
 }
 
 .friends-profile-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  display: flex;
   align-items: end;
   gap: 13px;
+  max-width: 700px;
 }
 
 .friends-profile-form label {
+  flex: 1;
   min-width: 0;
 }
 
 .friends-profile-form input,
 .friends-search-form input {
-  min-width: 0;
   min-height: 43px;
 }
 
@@ -426,6 +426,7 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
 
 .friends-search-form input {
   flex: 1;
+  min-width: 0;
 }
 
 .friends-columns {
@@ -490,7 +491,6 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
   margin-top: 4px;
   color: var(--muted);
   font-size: 11px;
-  overflow-wrap: anywhere;
 }
 
 .friend-actions {
@@ -547,29 +547,15 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
 }
 
 @media (max-width: 900px) {
-  .friends-profile-form {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .friends-profile-form button {
-    grid-column: 1 / -1;
+  .friends-columns {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 650px) {
-  .friends-columns {
-    grid-template-columns: 1fr;
-  }
-
-  .friends-profile-form {
-    grid-template-columns: 1fr;
-  }
-
-  .friends-profile-form button {
-    grid-column: auto;
-  }
-
+  .friends-profile-form,
   .friends-search-form {
+    align-items: stretch;
     flex-direction: column;
   }
 
