@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages | AI Tutor</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="messages.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-page="messages">
+
+  <div id="app"></div>
+
+  <main class="messages-page">
+    <header class="messages-heading">
+      <div>
+        <p class="messages-eyebrow">YOUR COMMUNITY</p>
+        <h1>Messages</h1>
+        <p>Have a conversation with your friends.</p>
+      </div>
+      <a class="messages-back" href="friends.html">Find friends</a>
+    </header>
+
+    <section class="messages-layout">
+
+      <aside class="messages-friends-panel">
+        <div class="messages-panel-heading">
+          <h2>Conversations</h2>
+          <span>Friends</span>
+        </div>
+
+        <div id="message-friends">
+          <div class="messages-placeholder">Loading friends...</div>
+        </div>
+      </aside>
+
+      <section class="messages-chat-panel">
+
+        <div id="message-empty" class="messages-empty">
+          <div class="messages-empty-icon">✉</div>
+          <h2>Your messages</h2>
+          <p>Select an accepted friend to start chatting.</p>
+        </div>
+
+        <div id="message-thread" hidden>
+          <header class="message-thread-header">
+            <div class="message-thread-avatar" id="message-friend-avatar">S</div>
+            <div>
+              <h2 id="message-friend-name">Friend</h2>
+              <p>Private conversation</p>
+            </div>
+          </header>
+
+          <div
+            id="message-list"
+            class="message-list"
+            aria-live="polite"
+          ></div>
+
+          <form id="message-form" class="message-composer">
+            <textarea
+              id="message-input"
+              maxlength="4000"
+              rows="2"
+              placeholder="Write a message..."
+              disabled
+            ></textarea>
+
+            <button id="message-send" type="submit" disabled>
+              Send
+            </button>
+          </form>
+
+          <p id="message-status" class="message-status"></p>
+        </div>
+
+      </section>
+    </section>
+  </main>
+
+</body>
+</html>
