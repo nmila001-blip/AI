@@ -3,7 +3,6 @@
 // AI TUTOR - SHARED JAVASCRIPT
 // ============================================
 
-// Your existing Supabase project
 const SUPABASE_URL = "https://vjvhqaxhmvkvydnwcbgr.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_dmwhgYb21RnE0gQpU5hlQA_HZ4Uktt1";
 const FUNCTION_URL = SUPABASE_URL + "/functions/v1/Tutor";
@@ -50,7 +49,6 @@ const navigation = [
 
 function createSidebar() {
   const app = document.getElementById("app");
-
   if (!app) return;
 
   const links = navigation.map(item => `
@@ -88,6 +86,34 @@ function createSidebar() {
 }
 
 // ============================================
+// UTILITIES
+// ============================================
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
+function formatDate(date) {
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) return "Date unavailable";
+
+  return parsed.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+// ============================================
 // LOCAL STUDY HISTORY
 // ============================================
 
@@ -114,7 +140,6 @@ function saveHistory(question, subject) {
     date: new Date().toISOString()
   });
 
-  // Keep the latest 100 questions
   localStorage.setItem(
     getHistoryKey(),
     JSON.stringify(saved.slice(0, 100))
@@ -130,7 +155,8 @@ function renderHistory() {
   const saved = getSavedHistory();
 
   if (count) {
-    count.textContent = `${saved.length} saved question${saved.length === 1 ? "" : "s"}`;
+    count.textContent =
+      `${saved.length} saved question${saved.length === 1 ? "" : "s"}`;
   }
 
   if (saved.length === 0) {
@@ -139,13 +165,15 @@ function renderHistory() {
         <div class="empty-icon">⌕</div>
         <h3>No study history yet</h3>
         <p>Questions you send to your tutor will appear here.</p>
-        <a class="primary-button" href="tutor.html">Ask your first question →</a>
+        <a class="primary-button" href="tutor.html">
+          Ask your first question →
+        </a>
       </div>
     `;
     return;
   }
 
-  list.innerHTML = saved.map((item, index) => `
+  list.innerHTML = saved.map(item => `
     <article class="history-item">
       <div>
         <h3>${escapeHTML(item.question)}</h3>
@@ -156,30 +184,6 @@ function renderHistory() {
       </a>
     </article>
   `).join("");
-}
-
-function formatDate(date) {
-  const parsed = new Date(date);
-
-  if (Number.isNaN(parsed.getTime())) return "Date unavailable";
-
-  return parsed.toLocaleString([], {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  });
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, character => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[character]);
 }
 
 // ============================================
@@ -200,13 +204,13 @@ function updateDashboard() {
 
 function addMessage(role, text) {
   const container = document.getElementById("chat-messages");
-
   if (!container) return;
 
   const isUser = role === "user";
 
   const message = document.createElement("div");
-  message.className = `message ${isUser ? "user-message" : "assistant-message"}`;
+  message.className =
+    `message ${isUser ? "user-message" : "assistant-message"}`;
 
   const avatar = document.createElement("div");
   avatar.className = "message-avatar";
@@ -230,6 +234,7 @@ function addMessage(role, text) {
 
 function showTyping() {
   const container = document.getElementById("chat-messages");
+  if (!container) return;
 
   const typing = document.createElement("div");
   typing.className = "message assistant-message";
@@ -257,7 +262,6 @@ function removeTyping() {
 
 function setupChat() {
   const form = document.getElementById("chat-form");
-
   if (!form) return;
 
   const input = document.getElementById("chat-input");
@@ -265,19 +269,20 @@ function setupChat() {
   const subjectSelect = document.getElementById("subject");
   const levelSelect = document.getElementById("level");
   const clearButton = document.getElementById("clear-chat");
-  
-  input.addEventListener("keydown", (event) => {
-      if (
-          event.key === "Enter" &&
-          !event.shiftKey &&
-          !event.isComposing
-      ) {
-          event.preventDefault();
-          form.requestSubmit();
-      }
+
+  input.addEventListener("keydown", event => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.isComposing
+    ) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
   });
-  
-  const requestedSubject = new URLSearchParams(location.search).get("subject");
+
+  const requestedSubject =
+    new URLSearchParams(location.search).get("subject");
 
   if (requestedSubject && subjectSelect) {
     const matchingOption = [...subjectSelect.options].find(
@@ -293,7 +298,6 @@ function setupChat() {
     event.preventDefault();
 
     const question = input.value.trim();
-
     if (!question) return;
 
     const subject = subjectSelect.value;
@@ -320,7 +324,8 @@ function setupChat() {
 
       currentSession = sessionData.session;
 
-      const token = currentSession?.access_token || SUPABASE_ANON_KEY;
+      const token =
+        currentSession?.access_token || SUPABASE_ANON_KEY;
 
       const response = await fetch(FUNCTION_URL, {
         method: "POST",
@@ -331,8 +336,8 @@ function setupChat() {
         },
         body: JSON.stringify({
           messages: chatMessages,
-          subject: subject,
-          level: level,
+          subject,
+          level,
           session_id: sessionId
         })
       });
@@ -347,7 +352,6 @@ function setupChat() {
         );
       }
 
-      // Accept common response formats from the Edge Function.
       const answer =
         result.reply ||
         result.answer ||
@@ -369,8 +373,6 @@ function setupChat() {
 
     } catch (error) {
       removeTyping();
-
-      // Remove the failed question from the in-memory conversation.
       chatMessages.pop();
 
       addMessage(
@@ -466,7 +468,6 @@ function updateAccountUI() {
 
 function setupAccount() {
   const form = document.getElementById("auth-form");
-
   if (!form) return;
 
   const emailInput = document.getElementById("email");
@@ -477,6 +478,7 @@ function setupAccount() {
   const logoutButton = document.getElementById("logout-button");
 
   function showAuthMessage(text, isError = false) {
+    if (!message) return;
     message.textContent = text;
     message.style.color = isError ? "#ff9299" : "#9bdcb8";
   }
@@ -504,7 +506,6 @@ function setupAccount() {
       currentUser = data.user;
 
       showAuthMessage("Signed in successfully!");
-
       updateAccountUI();
 
     } catch (error) {
@@ -584,6 +585,513 @@ function setupAccount() {
 }
 
 // ============================================
+// FRIENDS - DISPLAY NAME ONLY
+// ============================================
+
+function setFriendsMessage(elementId, message, isError = false) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+
+  element.textContent = message;
+  element.style.color = isError ? "#ff9299" : "#9bdcb8";
+}
+
+function friendEmpty(message) {
+  return `<div class="friends-empty">${escapeHTML(message)}</div>`;
+}
+
+function getInitial(name) {
+  return String(name || "S").trim().charAt(0).toUpperCase() || "S";
+}
+
+function renderFriendCard(profile, actions = "") {
+  const name = profile?.display_name || "Student";
+
+  return `
+    <article class="friend-card">
+      <div class="friend-person">
+        <div class="friend-avatar">${escapeHTML(getInitial(name))}</div>
+        <div class="friend-details">
+          <strong>${escapeHTML(name)}</strong>
+        </div>
+      </div>
+      ${actions ? `<div class="friend-actions">${actions}</div>` : ""}
+    </article>
+  `;
+}
+
+async function getProfilesByIds(ids) {
+  const uniqueIds = [...new Set(ids)].filter(Boolean);
+
+  if (!uniqueIds.length) return {};
+
+  const { data, error } = await supabaseClient
+    .from("user_profiles")
+    .select("user_id, display_name")
+    .in("user_id", uniqueIds);
+
+  if (error) throw error;
+
+  return Object.fromEntries(
+    (data || []).map(profile => [profile.user_id, profile])
+  );
+}
+
+function setupFriends() {
+  if (page !== "friends") return;
+
+  const profileForm = document.getElementById("friends-profile-form");
+  const profileInput = document.getElementById("friends-display-name");
+  const searchForm = document.getElementById("friends-search-form");
+  const searchInput = document.getElementById("friends-search-input");
+
+  profileForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (!currentUser) {
+      setFriendsMessage(
+        "friends-profile-message",
+        "Please sign in before saving your display name.",
+        true
+      );
+      return;
+    }
+
+    const displayName = profileInput.value.trim();
+
+    if (displayName.length < 2 || displayName.length > 40) {
+      setFriendsMessage(
+        "friends-profile-message",
+        "Your display name must be between 2 and 40 characters.",
+        true
+      );
+      return;
+    }
+
+    const saveButton = document.getElementById("friends-profile-save");
+    saveButton.disabled = true;
+
+    setFriendsMessage("friends-profile-message", "Saving...");
+
+    try {
+      const { error } = await supabaseClient
+        .from("user_profiles")
+        .update({
+          display_name: displayName,
+          username: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq("user_id", currentUser.id);
+
+      if (error) throw error;
+
+      setFriendsMessage(
+        "friends-profile-message",
+        "Your display name has been saved!"
+      );
+
+      await loadFriendsPage();
+
+    } catch (error) {
+      setFriendsMessage(
+        "friends-profile-message",
+        error.message,
+        true
+      );
+
+    } finally {
+      saveButton.disabled = false;
+    }
+  });
+
+  searchForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+    await searchStudents(searchInput.value.trim());
+  });
+
+  document.getElementById("friends-search-results")
+    ?.addEventListener("click", async event => {
+      const button = event.target.closest("[data-friend-action='send']");
+      if (!button) return;
+
+      await sendFriendRequest(button.dataset.userId, button);
+    });
+
+  document.getElementById("friends-incoming")
+    ?.addEventListener("click", async event => {
+      const button = event.target.closest("[data-friend-action]");
+      if (!button) return;
+
+      const action = button.dataset.friendAction;
+
+      if (action !== "accept" && action !== "decline") return;
+
+      await respondToFriendRequest(
+        button.dataset.requestId,
+        action === "accept" ? "accepted" : "declined",
+        button
+      );
+    });
+
+  document.getElementById("friends-outgoing")
+    ?.addEventListener("click", async event => {
+      const button = event.target.closest("[data-friend-action='cancel']");
+      if (!button) return;
+
+      await cancelFriendRequest(button.dataset.requestId, button);
+    });
+}
+
+async function loadFriendsPage() {
+  if (page !== "friends") return;
+
+  const profileInput = document.getElementById("friends-display-name");
+
+  if (!currentUser) {
+    if (profileInput) profileInput.disabled = true;
+
+    setFriendsMessage(
+      "friends-profile-message",
+      "Sign in to set your display name."
+    );
+
+    document.getElementById("friends-search-results").innerHTML =
+      friendEmpty("Sign in to search for other students.");
+
+    document.getElementById("friends-incoming").innerHTML =
+      friendEmpty("Sign in to view incoming requests.");
+
+    document.getElementById("friends-outgoing").innerHTML =
+      friendEmpty("Sign in to view sent requests.");
+
+    document.getElementById("friends-list").innerHTML =
+      friendEmpty("Sign in to see your friends.");
+
+    return;
+  }
+
+  if (profileInput) profileInput.disabled = false;
+
+  try {
+    const { data: ownProfile, error: profileError } =
+      await supabaseClient
+        .from("user_profiles")
+        .select("display_name")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (profileInput && document.activeElement !== profileInput) {
+      profileInput.value = ownProfile?.display_name || "";
+    }
+
+    const { data: requests, error: requestError } =
+      await supabaseClient
+        .from("friend_requests")
+        .select("id, sender_id, receiver_id, status, created_at")
+        .order("created_at", { ascending: false });
+
+    if (requestError) throw requestError;
+
+    const allRequests = requests || [];
+
+    const incoming = allRequests.filter(request =>
+      request.receiver_id === currentUser.id &&
+      request.status === "pending"
+    );
+
+    const outgoing = allRequests.filter(request =>
+      request.sender_id === currentUser.id &&
+      request.status === "pending"
+    );
+
+    const accepted = allRequests.filter(request =>
+      request.status === "accepted" &&
+      (
+        request.sender_id === currentUser.id ||
+        request.receiver_id === currentUser.id
+      )
+    );
+
+    const otherIds = [
+      ...incoming.map(request => request.sender_id),
+      ...outgoing.map(request => request.receiver_id),
+      ...accepted.map(request =>
+        request.sender_id === currentUser.id
+          ? request.receiver_id
+          : request.sender_id
+      )
+    ];
+
+    const profiles = await getProfilesByIds(otherIds);
+
+    renderIncomingRequests(incoming, profiles);
+    renderOutgoingRequests(outgoing, profiles);
+    renderAcceptedFriends(accepted, profiles);
+
+  } catch (error) {
+    console.error("Friends loading error:", error);
+
+    for (const id of [
+      "friends-incoming",
+      "friends-outgoing",
+      "friends-list"
+    ]) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.innerHTML = friendEmpty(
+          "Couldn't load this section. Please refresh the page."
+        );
+      }
+    }
+  }
+}
+
+function renderIncomingRequests(requests, profiles) {
+  const container = document.getElementById("friends-incoming");
+  if (!container) return;
+
+  if (!requests.length) {
+    container.innerHTML = friendEmpty("You have no incoming requests.");
+    return;
+  }
+
+  container.innerHTML = requests.map(request => {
+    const profile = profiles[request.sender_id] || {
+      display_name: "Student"
+    };
+
+    return renderFriendCard(profile, `
+      <button class="friend-action accept"
+              data-friend-action="accept"
+              data-request-id="${escapeHTML(request.id)}">
+        Accept
+      </button>
+      <button class="friend-action decline"
+              data-friend-action="decline"
+              data-request-id="${escapeHTML(request.id)}">
+        Decline
+      </button>
+    `);
+  }).join("");
+}
+
+function renderOutgoingRequests(requests, profiles) {
+  const container = document.getElementById("friends-outgoing");
+  if (!container) return;
+
+  if (!requests.length) {
+    container.innerHTML = friendEmpty("You haven't sent any requests.");
+    return;
+  }
+
+  container.innerHTML = requests.map(request => {
+    const profile = profiles[request.receiver_id] || {
+      display_name: "Student"
+    };
+
+    return renderFriendCard(profile, `
+      <button class="friend-action"
+              data-friend-action="cancel"
+              data-request-id="${escapeHTML(request.id)}">
+        Cancel request
+      </button>
+    `);
+  }).join("");
+}
+
+function renderAcceptedFriends(requests, profiles) {
+  const container = document.getElementById("friends-list");
+  if (!container) return;
+
+  if (!requests.length) {
+    container.innerHTML = friendEmpty(
+      "You haven't added any friends yet. Search for someone above!"
+    );
+    return;
+  }
+
+  container.innerHTML = requests.map(request => {
+    const otherId = request.sender_id === currentUser.id
+      ? request.receiver_id
+      : request.sender_id;
+
+    const profile = profiles[otherId] || {
+      display_name: "Student"
+    };
+
+    return renderFriendCard(profile);
+  }).join("");
+}
+
+async function searchStudents(term) {
+  const container = document.getElementById("friends-search-results");
+  if (!container) return;
+
+  if (!currentUser) {
+    container.innerHTML = friendEmpty("Please sign in to search.");
+    return;
+  }
+
+  if (term.length < 2) {
+    container.innerHTML = friendEmpty(
+      "Enter at least two characters to search."
+    );
+    return;
+  }
+
+  container.innerHTML =
+    `<p class="friends-loading">Searching...</p>`;
+
+  try {
+    const safeTerm = term.replace(/[%_]/g, "\\$&");
+
+    const { data: profiles, error } = await supabaseClient
+      .from("user_profiles")
+      .select("user_id, display_name")
+      .ilike("display_name", `%${safeTerm}%`)
+      .neq("user_id", currentUser.id)
+      .order("display_name", { ascending: true })
+      .limit(20);
+
+    if (error) throw error;
+
+    if (!profiles?.length) {
+      container.innerHTML = friendEmpty(
+        "No students found with that display name."
+      );
+      return;
+    }
+
+    const { data: requests, error: requestError } =
+      await supabaseClient
+        .from("friend_requests")
+        .select("sender_id, receiver_id, status");
+
+    if (requestError) throw requestError;
+
+    container.innerHTML = profiles.map(profile => {
+      const existing = (requests || []).find(request =>
+        (
+          (request.sender_id === currentUser.id &&
+           request.receiver_id === profile.user_id) ||
+          (request.sender_id === profile.user_id &&
+           request.receiver_id === currentUser.id)
+        ) &&
+        ["pending", "accepted"].includes(request.status)
+      );
+
+      let action = "";
+
+      if (existing?.status === "accepted") {
+        action = `<span class="small-muted">Already friends</span>`;
+      } else if (existing?.status === "pending") {
+        action = existing.sender_id === currentUser.id
+          ? `<span class="small-muted">Request sent</span>`
+          : `<span class="small-muted">They requested you</span>`;
+      } else {
+        action = `
+          <button class="friend-action"
+                  data-friend-action="send"
+                  data-user-id="${escapeHTML(profile.user_id)}">
+            Add friend
+          </button>
+        `;
+      }
+
+      return renderFriendCard(profile, action);
+    }).join("");
+
+  } catch (error) {
+    console.error("Student search error:", error);
+
+    container.innerHTML = friendEmpty(
+      "Search failed. Please try again."
+    );
+  }
+}
+
+async function sendFriendRequest(userId, button) {
+  if (!currentUser || !userId) return;
+
+  button.disabled = true;
+  button.textContent = "Sending...";
+
+  try {
+    const { error } = await supabaseClient.rpc(
+      "send_friend_request",
+      { target_user_id: userId }
+    );
+
+    if (error) throw error;
+
+    button.textContent = "Request sent";
+
+    await loadFriendsPage();
+    await searchStudents(
+      document.getElementById("friends-search-input").value.trim()
+    );
+
+  } catch (error) {
+    alert(error.message || "Could not send friend request.");
+    button.disabled = false;
+    button.textContent = "Add friend";
+  }
+}
+
+async function respondToFriendRequest(requestId, decision, button) {
+  if (!requestId) return;
+
+  button.disabled = true;
+  button.textContent = decision === "accepted"
+    ? "Accepting..."
+    : "Declining...";
+
+  try {
+    const { error } = await supabaseClient.rpc(
+      "respond_to_friend_request",
+      {
+        request_id: requestId,
+        decision
+      }
+    );
+
+    if (error) throw error;
+
+    await loadFriendsPage();
+
+  } catch (error) {
+    alert(error.message || "Could not update friend request.");
+    button.disabled = false;
+    button.textContent = decision === "accepted" ? "Accept" : "Decline";
+  }
+}
+
+async function cancelFriendRequest(requestId, button) {
+  if (!requestId) return;
+
+  button.disabled = true;
+  button.textContent = "Cancelling...";
+
+  try {
+    const { error } = await supabaseClient.rpc(
+      "cancel_friend_request",
+      { request_id: requestId }
+    );
+
+    if (error) throw error;
+
+    await loadFriendsPage();
+
+  } catch (error) {
+    alert(error.message || "Could not cancel friend request.");
+    button.disabled = false;
+    button.textContent = "Cancel request";
+  }
+}
+
+// ============================================
 // BUTTONS
 // ============================================
 
@@ -614,17 +1122,24 @@ async function startApp() {
   setupChat();
   setupAccount();
   setupHistoryButtons();
+  setupFriends();
 
   await refreshAccount();
 
-  // Update the interface after login/logout events.
+  if (page === "friends") {
+    await loadFriendsPage();
+  }
+
   supabaseClient.auth.onAuthStateChange((event, session) => {
     currentSession = session;
     currentUser = session?.user || null;
 
-    // Defer UI updates until after the auth callback completes.
     setTimeout(() => {
       updateAccountUI();
+
+      if (page === "friends") {
+        loadFriendsPage();
+      }
     }, 0);
   });
 
