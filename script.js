@@ -45,6 +45,7 @@ const navigation = [
   { page: "subjects", label: "Subjects", icon: "▦", url: "subjects.html" },
   { page: "history", label: "Study History", icon: "◷", url: "history.html" },
   { page: "account", label: "Account", icon: "◎", url: "account.html" }
+  { page: "friends", label: "Friends", icon: "♧", url: "friends.html" },
 ];
 
 function createSidebar() {
