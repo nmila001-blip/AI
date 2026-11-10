@@ -270,6 +270,11 @@ function setupChat() {
   const levelSelect = document.getElementById("level");
   const clearButton = document.getElementById("clear-chat");
 
+  if (!input || !sendButton || !subjectSelect || !levelSelect) {
+    console.error("AI Tutor: One or more chat elements are missing.");
+    return;
+  }
+
   input.addEventListener("keydown", event => {
     if (
       event.key === "Enter" &&
@@ -477,6 +482,11 @@ function setupAccount() {
   const signupButton = document.getElementById("signup-button");
   const logoutButton = document.getElementById("logout-button");
 
+  if (!emailInput || !passwordInput || !loginButton || !signupButton) {
+    console.error("Account: One or more authentication elements are missing.");
+    return;
+  }
+
   function showAuthMessage(text, isError = false) {
     if (!message) return;
     message.textContent = text;
@@ -642,8 +652,23 @@ function setupFriends() {
 
   const profileForm = document.getElementById("friends-profile-form");
   const profileInput = document.getElementById("friends-display-name");
-  const searchForm = document.getElementById("friends-search-form");
-  const searchInput = document.getElementById("friends-search-input");
+
+  // IMPORTANT:
+  // Listen for the search form submission at the document level.
+  // Capture mode catches it before the browser can perform a normal
+  // form submission and reload the page.
+  document.addEventListener("submit", event => {
+    if (event.target?.id !== "friends-search-form") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const searchInput = document.getElementById("friends-search-input");
+    const term = searchInput?.value.trim() || "";
+
+    searchStudents(term);
+  }, true);
 
   profileForm?.addEventListener("submit", async event => {
     event.preventDefault();
@@ -657,7 +682,7 @@ function setupFriends() {
       return;
     }
 
-    const displayName = profileInput.value.trim();
+    const displayName = profileInput?.value.trim() || "";
 
     if (displayName.length < 2 || displayName.length > 40) {
       setFriendsMessage(
@@ -669,7 +694,7 @@ function setupFriends() {
     }
 
     const saveButton = document.getElementById("friends-profile-save");
-    saveButton.disabled = true;
+    if (saveButton) saveButton.disabled = true;
 
     setFriendsMessage("friends-profile-message", "Saving...");
 
@@ -700,13 +725,8 @@ function setupFriends() {
       );
 
     } finally {
-      saveButton.disabled = false;
+      if (saveButton) saveButton.disabled = false;
     }
-  });
-
-  searchForm?.addEventListener("submit", async event => {
-    event.preventDefault();
-    await searchStudents(searchInput.value.trim());
   });
 
   document.getElementById("friends-search-results")
@@ -747,6 +767,11 @@ async function loadFriendsPage() {
 
   const profileInput = document.getElementById("friends-display-name");
 
+  const searchResults = document.getElementById("friends-search-results");
+  const incomingContainer = document.getElementById("friends-incoming");
+  const outgoingContainer = document.getElementById("friends-outgoing");
+  const friendsContainer = document.getElementById("friends-list");
+
   if (!currentUser) {
     if (profileInput) profileInput.disabled = true;
 
@@ -755,17 +780,25 @@ async function loadFriendsPage() {
       "Sign in to set your display name."
     );
 
-    document.getElementById("friends-search-results").innerHTML =
-      friendEmpty("Sign in to search for other students.");
+    if (searchResults) {
+      searchResults.innerHTML =
+        friendEmpty("Sign in to search for other students.");
+    }
 
-    document.getElementById("friends-incoming").innerHTML =
-      friendEmpty("Sign in to view incoming requests.");
+    if (incomingContainer) {
+      incomingContainer.innerHTML =
+        friendEmpty("Sign in to view incoming requests.");
+    }
 
-    document.getElementById("friends-outgoing").innerHTML =
-      friendEmpty("Sign in to view sent requests.");
+    if (outgoingContainer) {
+      outgoingContainer.innerHTML =
+        friendEmpty("Sign in to view sent requests.");
+    }
 
-    document.getElementById("friends-list").innerHTML =
-      friendEmpty("Sign in to see your friends.");
+    if (friendsContainer) {
+      friendsContainer.innerHTML =
+        friendEmpty("Sign in to see your friends.");
+    }
 
     return;
   }
@@ -863,12 +896,14 @@ function renderIncomingRequests(requests, profiles) {
     };
 
     return renderFriendCard(profile, `
-      <button class="friend-action accept"
+      <button type="button"
+              class="friend-action accept"
               data-friend-action="accept"
               data-request-id="${escapeHTML(request.id)}">
         Accept
       </button>
-      <button class="friend-action decline"
+      <button type="button"
+              class="friend-action decline"
               data-friend-action="decline"
               data-request-id="${escapeHTML(request.id)}">
         Decline
@@ -892,7 +927,8 @@ function renderOutgoingRequests(requests, profiles) {
     };
 
     return renderFriendCard(profile, `
-      <button class="friend-action"
+      <button type="button"
+              class="friend-action"
               data-friend-action="cancel"
               data-request-id="${escapeHTML(request.id)}">
         Cancel request
@@ -992,7 +1028,8 @@ async function searchStudents(term) {
           : `<span class="small-muted">They requested you</span>`;
       } else {
         action = `
-          <button class="friend-action"
+          <button type="button"
+                  class="friend-action"
                   data-friend-action="send"
                   data-user-id="${escapeHTML(profile.user_id)}">
             Add friend
@@ -1029,9 +1066,12 @@ async function sendFriendRequest(userId, button) {
     button.textContent = "Request sent";
 
     await loadFriendsPage();
-    await searchStudents(
-      document.getElementById("friends-search-input").value.trim()
-    );
+
+    const searchInput = document.getElementById("friends-search-input");
+
+    if (searchInput) {
+      await searchStudents(searchInput.value.trim());
+    }
 
   } catch (error) {
     alert(error.message || "Could not send friend request.");
