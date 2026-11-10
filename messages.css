@@ -382,3 +382,45 @@
 .message-read-status.seen {
   color: #a995ff;
 }
+
+/* ==========================================
+   LIVE MESSAGING STATUS
+========================================== */
+
+.message-live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  color: #9691ad;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.message-live-status.online {
+  color: #45d995;
+}
+
+.message-live-status.online::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #45d995;
+  display: inline-block;
+}
+
+.message-live-status.typing {
+  color: #a995ff;
+}
+
+.friend-presence-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  min-width: 9px;
+  border-radius: 50%;
+  background: #45d995;
+  margin-left: auto;
+  box-shadow: 0 0 8px #45d99566;
+}
