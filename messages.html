@@ -15,6 +15,7 @@
   <script src="messages-media.js" defer></script>
   <script src="group-chat.js" defer></script>
   <script src="chat-notifications.js" defer></script>
+  <script src="push-notifications.js" defer></script>
 </head>
 <body data-page="messages">
   <div id="app"></div>
@@ -29,6 +30,7 @@
       <div class="messages-heading-actions">
         <button type="button" id="enable-chat-notifications" class="secondary-button" title="Enable browser notifications">♧ Notifications off</button>
         <a class="messages-back" href="friends.html">Find friends</a>
+        <p id="push-notification-status" class="message-status" aria-live="polite"></p>
       </div>
     </header>
 
