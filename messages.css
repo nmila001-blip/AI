@@ -622,3 +622,27 @@
     justify-content: flex-start;
   }
 }
+
+
+/* Per-conversation notification mute control */
+.chat-mute-button {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #554b70;
+  border-radius: 9px;
+  color: #d8d1f2;
+  background: #211e32;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: .18s ease;
+}
+.chat-mute-button:hover {
+  border-color: #9875ff;
+  background: #302747;
+}
+.chat-mute-button.is-muted {
+  color: #ffe0a6;
+  border-color: #b88b4255;
+  background: #b88b4218;
+}
