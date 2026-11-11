@@ -1515,7 +1515,14 @@ async function subscribeToConversation(conversationId) {
         filter: `conversation_id=eq.${conversationId}`
       },
       payload => {
-        if (activeMessageConversation !== conversationId) return;
+        if (activeMessageConversation !== conversationId) {
+          window.showChatNotification?.({
+            title: activeMessageFriendName() || "New message",
+            body: payload.new.body || "📷 Photo",
+            tag: "direct-" + conversationId
+          });
+          return;
+        }
         appendPrivateMessage(payload.new);
       }
     )
