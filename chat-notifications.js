@@ -85,18 +85,8 @@
     }
   });
 
-  function updateButton() {
-    if (!button) return;
-    const supported = "Notification" in window;
-    const enabled = supported && Notification.permission === "granted";
-    button.textContent = enabled ? "♧ Notifications on" :
-      (!supported ? "Notifications unavailable" : "♧ Notifications off");
-    button.classList.toggle("enabled", enabled);
-    button.disabled = !supported;
-    button.title = enabled
-      ? "Browser notifications are enabled"
-      : "Click to allow browser notifications";
-  }
+  // The main system-notification toggle is managed exclusively by
+  // push-notifications.js. This file handles per-chat mute settings only.
 
   function showToast(title, body) {
     document.querySelector(".chat-notification-toast")?.remove();
@@ -145,9 +135,6 @@
   };
 
   // Push subscription and permission controls are managed by push-notifications.js.
-
-  updateButton();
-
 
   async function dispatchPush(eventType, messageId) {
     try {
