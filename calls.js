@@ -7,6 +7,7 @@
   if (document.body.dataset.page !== "messages") return;
 
   let userId = null;
+  let ownDisplayName = "Friend";
   let ownSignalChannel = null;
   let ownChannelReady = null;
   const outgoingChannels = new Map();
@@ -255,7 +256,7 @@
       await sendSignal(friendId, "offer", {
         description: peer.localDescription.toJSON(),
         mode,
-        caller_name: getFriendName()
+        caller_name: ownDisplayName
       }, callId);
 
       setCallState("Calling " + activeCall.peerName + "...");
@@ -316,14 +317,15 @@
       return;
     }
 
-    if (type === "candidate" && peer && signal.data?.candidate) {
-      if (peer.remoteDescription) {
+    if (type === "candidate" && signal.data?.candidate) {
+      if (peer && peer.remoteDescription) {
         try {
           await peer.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
         } catch (error) {
           console.warn("ICE candidate could not be added:", error);
         }
       } else {
+        // Candidates can arrive before the recipient accepts the call.
         pendingCandidates.push(signal.data.candidate);
       }
       return;
@@ -459,6 +461,13 @@
     userId = data.session?.user?.id || null;
 
     if (userId) {
+      const { data: profile } = await supabaseClient
+        .from("user_profiles")
+        .select("display_name")
+        .eq("user_id", userId)
+        .maybeSingle();
+      ownDisplayName = profile?.display_name || data.session.user.user_metadata?.full_name || "Friend";
+
       subscribeOwnChannel().catch(error => {
         console.error("Call notification subscription failed:", error);
       });
@@ -467,6 +476,13 @@
     supabaseClient.auth.onAuthStateChange((event, session) => {
       userId = session?.user?.id || null;
       if (userId) {
+        supabaseClient.from("user_profiles")
+          .select("display_name")
+          .eq("user_id", userId)
+          .maybeSingle()
+          .then(({ data: profile }) => {
+            ownDisplayName = profile?.display_name || "Friend";
+          });
         subscribeOwnChannel().catch(error => console.error(error));
       } else {
         cleanupCall();
