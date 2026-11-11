@@ -66,6 +66,18 @@
     }
   }
 
+  function createCallId() {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    const bytes = new Uint8Array(16);
+    if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map(value => value.toString(16).padStart(2, "0")).join("");
+    return hex.slice(0, 8) + "-" + hex.slice(8, 12) + "-" +
+      hex.slice(12, 16) + "-" + hex.slice(16, 20) + "-" + hex.slice(20);
+  }
+
   async function subscribeOwnChannel() {
     if (!userId) throw new Error("Sign in before making a call.");
     if (ownChannelReady) return ownChannelReady;
@@ -224,7 +236,7 @@
       return;
     }
 
-    const callId = crypto.randomUUID();
+    const callId = createCallId();
     activeCall = {
       id: callId,
       peerId: friendId,
@@ -432,8 +444,15 @@
   }
 
   function setupButtons() {
-    $("voice-call-button")?.addEventListener("click", () => startOutgoingCall("voice"));
-    $("video-call-button")?.addEventListener("click", () => startOutgoingCall("video"));
+    // Delegate call-start clicks so they still work if the message header is rebuilt.
+    document.addEventListener("click", event => {
+      const button = event.target.closest("#voice-call-button, #video-call-button");
+      if (!button) return;
+      event.preventDefault();
+      if (button.id === "voice-call-button") startOutgoingCall("voice");
+      else startOutgoingCall("video");
+    });
+
     $("call-accept")?.addEventListener("click", acceptIncomingCall);
     $("call-decline")?.addEventListener("click", () => endCall("decline"));
     $("call-hangup")?.addEventListener("click", () => endCall("hangup"));
