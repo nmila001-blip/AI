@@ -54,8 +54,13 @@
         </div>
       </div>
 
+      <div class="chat-attachment-row">
+        <label class="chat-attach-button" for="chat-image">＋ Add photo</label>
+        <input id="chat-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+        <span id="chat-attachment-status" class="chat-attachment-status"></span>
+      </div>
       <form class="chat-form" id="chat-form">
-        <textarea id="chat-input" rows="1" placeholder="Ask your tutor anything..." required></textarea>
+        <textarea id="chat-input" rows="1" placeholder="Ask your tutor anything..." ></textarea>
         <button class="send-button" id="send-button" type="submit" aria-label="Send message">↑</button>
       </form>
       <p class="chat-disclaimer">Your tutor can make mistakes. Check important answers with your class materials.</p>
