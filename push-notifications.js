@@ -75,10 +75,20 @@
     let subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: base64UrlToBytes(PUBLIC_VAPID_KEY)
-      });
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: base64UrlToBytes(PUBLIC_VAPID_KEY)
+        });
+      } catch (error) {
+        const message = String(error?.message || error).toLowerCase();
+        if (message.includes("push service") || message.includes("registration failed")) {
+          throw new Error(
+            "Helium's push service rejected this subscription. This is a browser push-service problem, not a site permission problem. Background notifications currently work in Chrome on your setup."
+          );
+        }
+        throw error;
+      }
     }
 
     if (typeof supabaseClient === "undefined") {
