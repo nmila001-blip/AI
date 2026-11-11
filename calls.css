@@ -67,3 +67,67 @@
   .call-video-stage { height: 42vh; }
   #call-local-video { width: 95px; height: 70px; }
 }
+
+
+@media (max-width: 600px) {
+  .call-overlay {
+    padding: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    place-items: stretch;
+  }
+
+  .call-card {
+    width: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 0;
+    border-radius: 0;
+    padding: 20px 16px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  .call-card-top {
+    padding-top: 8px;
+  }
+
+  .call-card-top h2 {
+    font-size: 23px;
+  }
+
+  .call-video-stage {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 35dvh;
+    max-height: 58dvh;
+    margin: 18px 0;
+  }
+
+  #call-local-video {
+    width: 104px;
+    height: 138px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .call-actions {
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .call-button {
+    min-height: 48px;
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+
+  .call-error {
+    line-height: 1.5;
+    padding-bottom: 4px;
+  }
+}
