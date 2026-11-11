@@ -373,6 +373,17 @@
 
     if (type === "offer") {
       if (activeCall) {
+        // Ignore a duplicate delivery of the same incoming offer.
+        if (activeCall.id === signal.call_id && activeCall.role === "callee") {
+          console.info("Ignoring duplicate offer for current call:", signal.call_id);
+          return;
+        }
+
+        console.warn("Incoming offer rejected because another call is active:", {
+          incomingCallId: signal.call_id,
+          activeCallId: activeCall.id,
+          activeCallRole: activeCall.role
+        });
         await sendSignal(senderId, "busy", {}, signal.call_id);
         return;
       }
