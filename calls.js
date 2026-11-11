@@ -479,7 +479,10 @@
     if (error) console.error("Call auth check failed:", error);
     userId = data.session?.user?.id || null;
 
-    if (userId) {
+    if (userId && data.session?.access_token) {
+      // Make sure Realtime has the signed-in user's JWT before joining private channels.
+      await supabaseClient.realtime.setAuth(data.session.access_token);
+
       const { data: profile } = await supabaseClient
         .from("user_profiles")
         .select("display_name")
@@ -494,7 +497,10 @@
 
     supabaseClient.auth.onAuthStateChange((event, session) => {
       userId = session?.user?.id || null;
-      if (userId) {
+      if (userId && session?.access_token) {
+        supabaseClient.realtime.setAuth(session.access_token)
+          .then(() => subscribeOwnChannel())
+          .catch(error => console.error("Call notification subscription failed:", error));
         supabaseClient.from("user_profiles")
           .select("display_name")
           .eq("user_id", userId)
@@ -502,7 +508,6 @@
           .then(({ data: profile }) => {
             ownDisplayName = profile?.display_name || "Friend";
           });
-        subscribeOwnChannel().catch(error => console.error(error));
       } else {
         cleanupCall();
         if (ownSignalChannel) supabaseClient.removeChannel(ownSignalChannel);
