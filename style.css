@@ -604,3 +604,16 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
   border-radius: 12px;
   object-fit: contain;
 }
+
+/* Earned cosmetic themes and chat styles */
+body[data-theme="ocean"]{--purple:#48bde0;--purple-light:#82e0f5;--panel:#101f31;--panel-light:#172c43;--sidebar:#0b1828;--bg:#071321}
+body[data-theme="rose"]{--purple:#ed83b7;--purple-light:#ffafd0;--panel:#261626;--panel-light:#352039;--sidebar:#1b1020;--bg:#120c17}
+body[data-theme="emerald"]{--purple:#51c99a;--purple-light:#8ce5bb;--panel:#10251f;--panel-light:#18372d;--sidebar:#0b1b17;--bg:#07140f}
+body[data-theme="ocean"] .primary-button,body[data-theme="ocean"] .brand-mark{background:linear-gradient(110deg,#37b6d8,#2773b8)}
+body[data-theme="rose"] .primary-button,body[data-theme="rose"] .brand-mark{background:linear-gradient(110deg,#ed83b7,#b94d91)}
+body[data-theme="emerald"] .primary-button,body[data-theme="emerald"] .brand-mark{background:linear-gradient(110deg,#51c99a,#278b68)}
+body[data-bubble="cyan"] .message-content,body[data-bubble="cyan"] .message-bubble{background:#123b4b;border-color:#3bc5e755}
+body[data-bubble="cyan"] .user-message .message-content,body[data-bubble="cyan"] .message-row.mine .message-bubble{background:#15556a}
+body[data-bubble="sunset"] .message-content,body[data-bubble="sunset"] .message-bubble{background:#4a2b34;border-color:#ed936b55}
+body[data-bubble="sunset"] .user-message .message-content,body[data-bubble="sunset"] .message-row.mine .message-bubble{background:#693d42}
+@media(max-width:700px){.practice-toggle{min-width:100%;padding-bottom:8px}.chat-settings{flex-wrap:wrap}}
