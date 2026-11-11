@@ -1,6 +1,5 @@
 /* ==========================================
    WEB PUSH NOTIFICATIONS
-   Delivers system notifications through the service worker.
 ========================================== */
 (() => {
   if (document.body.dataset.page !== "messages") return;
@@ -10,25 +9,22 @@
   const PUBLIC_VAPID_KEY = "BMmRr1LQ1EwFCKuqDJgMg1OMDI3yVj3iZl9GanLQBONZ5SBcHHrViYKb_hqP5knzBuFo9Kh9O4DDhydtPGVR8YQ";
   let busy = false;
 
-  function setStatus(message) {
-    if (status) status.textContent = message || "";
-  }
-
-  function supported() {
-    return "serviceWorker" in navigator &&
-      "PushManager" in window &&
-      "Notification" in window;
-  }
+  const setStatus = message => { if (status) status.textContent = message || ""; };
+  const supported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 
   function base64UrlToBytes(value) {
     const padding = "=".repeat((4 - value.length % 4) % 4);
-    const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
-    const raw = atob(base64);
+    const raw = atob((value + padding).replace(/-/g, "+").replace(/_/g, "/"));
     return Uint8Array.from(raw, char => char.charCodeAt(0));
   }
 
   async function getRegistration() {
     return navigator.serviceWorker.register("/AI/sw.js", { scope: "/AI/" });
+  }
+
+  async function getSubscription() {
+    const registration = await navigator.serviceWorker.getRegistration("/AI/");
+    return registration ? registration.pushManager.getSubscription() : null;
   }
 
   async function updateButton() {
@@ -41,21 +37,15 @@
     }
 
     try {
-      const registration = await navigator.serviceWorker.getRegistration("/AI/");
-      const subscription = registration
-        ? await registration.pushManager.getSubscription()
-        : null;
+      const subscription = await getSubscription();
       const enabled = Boolean(subscription);
-
       button.textContent = enabled ? "♧ Notifications on" : "♧ Notifications off";
       button.classList.toggle("enabled", enabled);
       button.disabled = busy;
-      button.title = enabled
-        ? "Click to turn system notifications off"
-        : "Click to turn system notifications on";
+      button.title = enabled ? "Click to turn system notifications off" : "Click to turn system notifications on";
 
-      if (Notification.permission === "denied") {
-        setStatus("Browser permission is blocked. Allow notifications in this site's browser settings.");
+      if (Notification.permission === "denied" && !enabled) {
+        setStatus("Notifications are blocked. Allow them in this site's browser settings.");
       } else if (enabled) {
         setStatus("System notifications are enabled on this browser.");
       } else if (!status?.dataset.error) {
@@ -65,18 +55,11 @@
       console.error("Could not inspect push subscription:", error);
       button.textContent = "♧ Notifications off";
       button.disabled = busy;
-      setStatus("Could not check notification status: " + (error.message || error));
+      if (!status?.dataset.error) setStatus("Could not check notification status: " + (error.message || error));
     }
   }
 
   async function enablePush(permissionPromise) {
-    if (!supported()) throw new Error("This browser does not support Web Push.");
-    if (Notification.permission === "denied") {
-      throw new Error("Notifications are blocked for this site. Open browser site settings and change Notifications to Allow.");
-    }
-
-    // The permission request is started directly inside the button click,
-    // before any asynchronous work, so browsers recognize the user gesture.
     const permission = await permissionPromise;
     if (permission !== "granted") {
       throw new Error("Notification permission was not granted. Check this site's browser permissions.");
@@ -97,28 +80,24 @@
       throw new Error("The app connection is not ready. Refresh Messages and try again.");
     }
 
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    const { data, error: sessionError } = await supabaseClient.auth.getSession();
     if (sessionError) throw sessionError;
-    if (!sessionData.session) throw new Error("Sign in before enabling system notifications.");
+    if (!data.session) throw new Error("Sign in before enabling system notifications.");
 
     const json = subscription.toJSON();
     const { error } = await supabaseClient.from("push_subscriptions").upsert({
-      user_id: sessionData.session.user.id,
+      user_id: data.session.user.id,
       endpoint: json.endpoint,
       p256dh: json.keys?.p256dh,
       auth: json.keys?.auth,
       updated_at: new Date().toISOString()
     }, { onConflict: "endpoint" });
-
     if (error) throw error;
+
     setStatus("Notifications are enabled on this browser.");
   }
 
-  async function disablePush() {
-    const registration = await navigator.serviceWorker.getRegistration("/AI/");
-    if (!registration) throw new Error("No notification registration was found. Refresh and try again.");
-
-    const subscription = await registration.pushManager.getSubscription();
+  async function disablePush(subscription) {
     if (!subscription) {
       setStatus("Notifications are already off.");
       return;
@@ -128,15 +107,14 @@
       throw new Error("The app connection is not ready. Refresh Messages and try again.");
     }
 
-    const endpoint = subscription.endpoint;
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    const { data, error: sessionError } = await supabaseClient.auth.getSession();
     if (sessionError) throw sessionError;
 
-    if (sessionData.session) {
+    if (data.session) {
       const { error } = await supabaseClient.from("push_subscriptions")
         .delete()
-        .eq("user_id", sessionData.session.user.id)
-        .eq("endpoint", endpoint);
+        .eq("user_id", data.session.user.id)
+        .eq("endpoint", subscription.endpoint);
       if (error) throw error;
     }
 
@@ -149,70 +127,64 @@
     return;
   }
 
+  // Attach the click handler immediately, before any initialization awaits.
   button.addEventListener("click", async event => {
     event.preventDefault();
     if (busy) return;
+
+    if (!supported()) {
+      setStatus("This browser does not support Web Push.");
+      return;
+    }
+
+    // IMPORTANT: trigger the browser permission prompt synchronously from
+    // the click, before the first await (browser user-activation requirement).
+    const permissionAtClick = Notification.permission;
+    let permissionPromise = null;
+    if (permissionAtClick === "default") {
+      try {
+        permissionPromise = Notification.requestPermission();
+      } catch (error) {
+        permissionPromise = Promise.reject(error);
+      }
+    } else {
+      permissionPromise = Promise.resolve(permissionAtClick);
+    }
 
     busy = true;
     button.disabled = true;
     button.textContent = "Setting up…";
     if (status) delete status.dataset.error;
+    let failureMessage = "";
 
-    let permissionPromise = null;
     try {
-      if (!supported()) throw new Error("This browser does not support Web Push.");
-
-      const registration = await navigator.serviceWorker.getRegistration("/AI/");
-      const subscription = registration
-        ? await registration.pushManager.getSubscription()
-        : null;
+      const subscription = await getSubscription();
 
       if (subscription) {
-        await disablePush();
+        await disablePush(subscription);
       } else {
-        if (Notification.permission === "denied") {
-          throw new Error("Notifications are blocked. Allow them in browser site settings, then try again.");
+        if (permissionAtClick === "denied") {
+          throw new Error("Notifications are blocked for this site. Open the site settings, set Notifications to Allow, then reload.");
         }
-        // Request permission before doing any more awaits.
-        permissionPromise = Notification.permission === "granted"
-          ? Promise.resolve("granted")
-          : Notification.requestPermission();
         await enablePush(permissionPromise);
       }
-
-      if (status) delete status.dataset.error;
     } catch (error) {
       console.error("Web Push setup failed:", error);
-      const message = error?.message || String(error) || "Could not change notification settings.";
-      if (status) {
-        status.dataset.error = "true";
-        setStatus("Couldn't change notifications: " + message);
-      }
+      failureMessage = error?.message || String(error) || "Unknown notification error.";
+      if (status) status.dataset.error = "true";
     } finally {
       busy = false;
       await updateButton();
-      if (status?.dataset.error) {
-        // updateButton refreshes the label but must not erase the actual error.
-        const currentError = status.textContent;
-        if (!currentError.startsWith("Couldn't change notifications:")) {
-          setStatus("Couldn't change notifications. Please try again and check browser permissions.");
-        }
-      }
+      if (failureMessage) setStatus("Couldn't change notifications: " + failureMessage);
     }
   });
 
-  async function start() {
-    if (!supported()) {
-      await updateButton();
-      return;
-    }
-    try {
-      await getRegistration();
-    } catch (error) {
+  // Initialization never blocks the click handler.
+  updateButton();
+  getRegistration()
+    .then(() => updateButton())
+    .catch(error => {
       console.warn("Service worker registration failed:", error);
-    }
-    await updateButton();
-  }
-
-  start();
+      if (!status?.dataset.error) setStatus("Service worker could not start: " + (error.message || error));
+    });
 })();
