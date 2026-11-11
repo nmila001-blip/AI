@@ -289,6 +289,17 @@
       ringTimer = setTimeout(async () => {
         if (activeCall?.id === callId && peer?.connectionState !== "connected") {
           try { await sendSignal(friendId, "cancel", {}, callId); } catch {}
+          supabaseClient.functions.invoke("send-push-notification", {
+            body: {
+              event_type: "missed_call",
+              target_user_id: friendId,
+              call_mode: mode,
+              caller_name: ownDisplayName,
+              message_id: callId
+            }
+          }).then(({ error }) => {
+            if (error) console.warn("Missed call push could not be sent:", error);
+          }).catch(error => console.warn("Missed call push request failed:", error));
           setCallState("No answer");
           setTimeout(cleanupCall, 1200);
         }
