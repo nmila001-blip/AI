@@ -424,3 +424,140 @@
   margin-left: auto;
   box-shadow: 0 0 8px #45d99566;
 }
+
+
+/* ==========================================
+   GROUP CHATS AND PHOTO SHARING
+========================================== */
+.group-chat-tools {
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid #29263b;
+}
+.group-chat-tools > button {
+  width: 100%;
+  border: 1px solid #55458a;
+  background: #292342;
+  color: #e4dcff;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.group-chat-tools > button:hover {
+  background: #39305c;
+}
+#group-chat-list {
+  margin-top: 8px;
+}
+.group-list-empty {
+  padding: 10px 6px;
+  color: #89849f;
+  font-size: 12px;
+}
+.group-friend .message-friend-avatar {
+  border-radius: 13px;
+  background: #493d70;
+}
+.message-attach-button {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #55458a;
+  border-radius: 10px;
+  background: #292342;
+  color: #e4dcff;
+  font-size: 23px;
+  cursor: pointer;
+}
+.message-attach-button:hover {
+  background: #39305c;
+}
+.shared-chat-image {
+  display: block;
+  max-width: min(280px, 100%);
+  max-height: 260px;
+  margin-top: 8px;
+  border-radius: 10px;
+  object-fit: contain;
+}
+.message-bubble:has(.shared-chat-image) {
+  min-width: 110px;
+}
+.group-create-dialog {
+  width: min(440px, calc(100% - 30px));
+  border: 1px solid #4a416c;
+  border-radius: 16px;
+  background: #171525;
+  color: #f3f1ff;
+  padding: 24px;
+}
+.group-create-dialog::backdrop {
+  background: #080711cc;
+  backdrop-filter: blur(4px);
+}
+.group-create-dialog h2 {
+  margin: 0 0 7px;
+  font-size: 21px;
+}
+.group-create-dialog p {
+  color: #aaa6c4;
+  font-size: 13px;
+}
+.group-name-label {
+  display: grid;
+  gap: 7px;
+  margin: 18px 0;
+  font-size: 13px;
+}
+.group-name-label input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #393452;
+  border-radius: 9px;
+  background: #1b1929;
+  color: white;
+  font: inherit;
+}
+.group-member-choices {
+  max-height: 210px;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #302c45;
+  border-radius: 10px;
+}
+.group-member-option {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #e8e5f7;
+  font-size: 13px;
+}
+.group-member-option input {
+  accent-color: #8a6de0;
+}
+.group-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.group-dialog-actions button {
+  border: 1px solid #51466f;
+  border-radius: 9px;
+  padding: 10px 14px;
+  color: white;
+  background: #292342;
+  cursor: pointer;
+}
+.group-dialog-actions button[type="submit"] {
+  background: #7659cf;
+  border-color: #7659cf;
+}
+.group-dialog-actions button:disabled {
+  opacity: .55;
+}
