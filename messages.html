@@ -14,6 +14,7 @@
   <script src="calls.js" defer></script>
   <script src="messages-media.js" defer></script>
   <script src="group-chat.js" defer></script>
+  <script src="chat-notifications.js" defer></script>
 </head>
 <body data-page="messages">
   <div id="app"></div>
@@ -25,7 +26,10 @@
         <h1>Messages</h1>
         <p>Have a conversation with your friends.</p>
       </div>
-      <a class="messages-back" href="friends.html">Find friends</a>
+      <div class="messages-heading-actions">
+        <button type="button" id="enable-chat-notifications" class="secondary-button" title="Enable browser notifications">♧ Notifications off</button>
+        <a class="messages-back" href="friends.html">Find friends</a>
+      </div>
     </header>
 
     <section class="messages-layout">
@@ -35,7 +39,7 @@
           <span>Friends</span>
         </div>
         <div class="group-chat-tools">
-          <button type="button" id="create-group-button">＋ New group</button>
+          <button type="button" id="create-group-button" class="primary-button">＋ New group</button>
           <div id="group-chat-list"></div>
         </div>
         <div id="message-friends">
