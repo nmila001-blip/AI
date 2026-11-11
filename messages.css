@@ -850,3 +850,39 @@
   .message-call-actions button { padding: 7px; font-size: 10px; }
   .message-thread-header { gap: 6px; }
 }
+
+
+/* ==========================================
+   CHAT MESSAGE SCROLL FIX
+========================================== */
+
+/* Keep the open conversation within the available chat-panel height. */
+.messages-chat-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+
+#message-thread:not([hidden]) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#message-thread .message-list {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Keep the composer and status area visible below the scrolling messages. */
+#message-thread .message-composer,
+#message-thread > .message-status {
+  flex: 0 0 auto;
+}
