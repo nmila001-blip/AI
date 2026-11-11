@@ -1373,8 +1373,12 @@ async function openMessageConversation(friendId, friendName) {
   try {
     setMessageStatus("");
 
-    if (window.closeGroupChatChannel) await window.closeGroupChatChannel();
-    window.activeGroupChatId = null;
+    if (window.deactivateGroupChat) {
+      await window.deactivateGroupChat();
+    } else {
+      if (window.closeGroupChatChannel) await window.closeGroupChatChannel();
+      window.activeGroupChatId = null;
+    }
     const callActions = document.querySelector(".message-call-actions");
     if (callActions) callActions.hidden = false;
 
