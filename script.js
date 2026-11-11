@@ -45,6 +45,8 @@ function getSessionId() {
 const navigation = [
   { page: "dashboard", label: "Dashboard", icon: "⌂", url: "index.html" },
   { page: "tutor", label: "AI Tutor", icon: "✦", url: "tutor.html" },
+  { page: "homework", label: "Homework Checker", icon: "✓", url: "homework.html" },
+  { page: "shop", label: "Token Shop", icon: "✧", url: "shop.html" },
   { page: "subjects", label: "Subjects", icon: "▦", url: "subjects.html" },
   { page: "friends", label: "Friends", icon: "♧", url: "friends.html" },
   { page: "messages", label: "Messages", icon: "✉", url: "messages.html" },
@@ -279,6 +281,7 @@ function setupChat() {
   const subjectSelect = document.getElementById("subject");
   const levelSelect = document.getElementById("level");
   const clearButton = document.getElementById("clear-chat");
+  const practiceMode = document.getElementById("practice-mode");
 
   if (!input || !sendButton || !subjectSelect || !levelSelect) return;
 
@@ -378,7 +381,8 @@ function setupChat() {
           subject,
           level,
           session_id: sessionId,
-          image_data_url: imageDataUrl
+          image_data_url: imageDataUrl,
+          practice_mode: practiceMode?.checked === true
         })
       });
 
@@ -409,7 +413,10 @@ function setupChat() {
       });
 
       removeTyping();
-      addMessage("assistant", answer);
+      const rewardNotice = Number(result.token_reward) > 0
+        ? `\\n\\n⭐ +${Number(result.token_reward)} tokens earned!`
+        : "";
+      addMessage("assistant", answer + rewardNotice);
 
     } catch (error) {
       removeTyping();
