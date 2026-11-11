@@ -210,7 +210,7 @@
     friendIsOnline = false;
     setStatus("Connecting...");
 
-    const topic = `private-chat-${conversationId}`;
+    const topic = `private-chat-live-${conversationId}`;
 
     activeChannel = supabaseClient.channel(topic, {
       config: {
