@@ -268,6 +268,7 @@
 
     activeGroup = group.id;
     window.activeGroupChatId = group.id;
+    window.setCurrentChatMuteTarget?.("group", group.id);
     activeMessageConversation = null;
     activeMessageFriend = null;
 
