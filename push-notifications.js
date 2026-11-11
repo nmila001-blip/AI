@@ -10,6 +10,10 @@
   let busy = false;
 
   const setStatus = message => { if (status) status.textContent = message || ""; };
+  const withTimeout = (promise, label, milliseconds = 8000) => Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(label + " timed out. Check browser service-worker support and reload.")), milliseconds))
+  ]);
   const supported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 
   function base64UrlToBytes(value) {
@@ -37,7 +41,8 @@
     }
 
     try {
-      const subscription = await getSubscription();
+      setStatus("Browser APIs detected. Checking this browser’s notification subscription…");
+      const subscription = await withTimeout(getSubscription(), "Notification subscription check");
       const enabled = Boolean(subscription);
       button.textContent = enabled ? "♧ Notifications on" : "♧ Notifications off";
       button.classList.toggle("enabled", enabled);
@@ -180,8 +185,9 @@
   });
 
   // Initialization never blocks the click handler.
+  setStatus("Browser APIs detected. Starting the notification service worker…");
   updateButton();
-  getRegistration()
+  withTimeout(getRegistration(), "Service worker registration", 10000)
     .then(() => updateButton())
     .catch(error => {
       console.warn("Service worker registration failed:", error);
