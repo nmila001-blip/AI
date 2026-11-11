@@ -58,6 +58,22 @@
     else chats[key] = true;
     try {
       localStorage.setItem(mutedChatsKey(notificationUserId), JSON.stringify(chats));
+      const muted = Boolean(chats[key]);
+      const dbChange = muted
+        ? supabaseClient.from("notification_mutes").upsert({
+            user_id: notificationUserId,
+            chat_kind: currentMuteTarget.kind,
+            chat_id: currentMuteTarget.id,
+            muted: true,
+            updated_at: new Date().toISOString()
+          }, { onConflict: "user_id,chat_kind,chat_id" })
+        : supabaseClient.from("notification_mutes").delete()
+            .eq("user_id", notificationUserId)
+            .eq("chat_kind", currentMuteTarget.kind)
+            .eq("chat_id", currentMuteTarget.id);
+      dbChange.then(({ error }) => {
+        if (error) console.warn("Could not sync notification mute:", error);
+      });
       updateMuteButton();
       const muted = Boolean(chats[key]);
       showToast(
@@ -129,40 +145,21 @@
     }
   };
 
-  button?.addEventListener("click", async () => {
-    if (!("Notification" in window)) {
-      showToast("Notifications unavailable", "This browser does not support desktop notifications.");
-      return;
-    }
-
-    if (Notification.permission === "granted") {
-      showToast("Notifications are on", "You'll get browser alerts when a new message arrives while this tab is in the background.");
-      updateButton();
-      return;
-    }
-
-    if (Notification.permission === "denied") {
-      showToast("Notifications are blocked", "Allow notifications for this site in your browser's site settings, then refresh.");
-      updateButton();
-      return;
-    }
-
-    try {
-      const permission = await Notification.requestPermission();
-      updateButton();
-      showToast(
-        permission === "granted" ? "Notifications enabled" : "Notifications not enabled",
-        permission === "granted"
-          ? "You'll get browser alerts when new messages arrive while this tab is in the background."
-          : "You can enable them later in your browser's site settings."
-      );
-    } catch (error) {
-      console.error("Notification permission error:", error);
-      showToast("Could not enable notifications", "Check your browser's site permissions.");
-    }
-  });
+  // Push subscription and permission controls are managed by push-notifications.js.
 
   updateButton();
+
+
+  async function dispatchPush(eventType, messageId) {
+    try {
+      const { error } = await supabaseClient.functions.invoke("send-push-notification", {
+        body: { event_type: eventType, message_id: messageId }
+      });
+      if (error) console.warn("Push dispatch failed:", error);
+    } catch (error) {
+      console.warn("Push dispatch request failed:", error);
+    }
+  }
 
   let notificationChannel = null;
   async function connectNotificationChannel(userId) {
@@ -173,6 +170,22 @@
     notificationUserId = userId || null;
     updateMuteButton();
     if (!userId) return;
+    try {
+      const { data: muteRows, error: muteError } = await supabaseClient
+        .from("notification_mutes")
+        .select("chat_kind,chat_id,muted")
+        .eq("user_id", userId);
+      if (!muteError) {
+        const muted = {};
+        (muteRows || []).forEach(row => {
+          if (row.muted) muted[row.chat_kind + ":" + row.chat_id] = true;
+        });
+        localStorage.setItem(mutedChatsKey(userId), JSON.stringify(muted));
+        updateMuteButton();
+      }
+    } catch (error) {
+      console.warn("Could not load synced mute preferences:", error);
+    }
 
     notificationChannel = supabaseClient
       .channel("all-chat-notification-events-" + userId)
@@ -182,7 +195,8 @@
         table: "chat_messages"
       }, async payload => {
         const message = payload.new;
-        if (!message || message.sender_id === userId) return;
+        if (!message) return;
+        if (message.sender_id === userId) { dispatchPush("direct_message", message.id); return; }
         if (isChatMuted("group", message.group_id, userId)) return;
         if (isChatMuted("direct", message.conversation_id, userId)) return;
         if (typeof activeMessageConversation !== "undefined" &&
@@ -216,7 +230,8 @@
         table: "group_messages"
       }, async payload => {
         const message = payload.new;
-        if (!message || message.sender_id === userId) return;
+        if (!message) return;
+        if (message.sender_id === userId) { dispatchPush("group_message", message.id); return; }
         if (typeof activeGroupChatId !== "undefined" &&
             activeGroupChatId === message.group_id &&
             !document.hidden && document.hasFocus()) return;
