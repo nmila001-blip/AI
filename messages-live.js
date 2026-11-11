@@ -176,7 +176,11 @@
   async function startConversationChannel() {
     const conversationId = getActiveConversation();
 
-    if (!userId || !conversationId) return;
+    if (!userId) return;
+    if (!conversationId) {
+      await stopActiveChannel();
+      return;
+    }
 
     if (conversationId === activeConversationId) return;
 
