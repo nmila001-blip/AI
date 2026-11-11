@@ -1388,6 +1388,8 @@ async function openMessageConversation(friendId, friendName) {
 
     document.getElementById("message-friend-name").textContent =
       friendName || "Friend";
+    const threadSubtitle = document.getElementById("message-friend-name").parentElement.querySelector("p");
+    if (threadSubtitle) threadSubtitle.textContent = "Private conversation";
 
     document.getElementById("message-friend-avatar").textContent =
       getInitial(friendName);
