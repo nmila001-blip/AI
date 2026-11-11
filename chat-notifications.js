@@ -170,6 +170,25 @@
     updateMuteButton();
     if (!userId) return;
     try {
+      // Preserve mute choices saved by the earlier local-only version.
+      const oldLocalMutes = getMutedChats(userId);
+      const legacyRows = Object.entries(oldLocalMutes).flatMap(([key, muted]) => {
+        const splitAt = key.indexOf(":");
+        if (!muted || splitAt < 1) return [];
+        return [{
+          user_id: userId,
+          chat_kind: key.slice(0, splitAt),
+          chat_id: key.slice(splitAt + 1),
+          muted: true
+        }];
+      });
+      if (legacyRows.length) {
+        const { error: migrateError } = await supabaseClient
+          .from("notification_mutes")
+          .upsert(legacyRows, { onConflict: "user_id,chat_kind,chat_id" });
+        if (migrateError) console.warn("Could not migrate older mute settings:", migrateError);
+      }
+
       const { data: muteRows, error: muteError } = await supabaseClient
         .from("notification_mutes")
         .select("chat_kind,chat_id,muted")
