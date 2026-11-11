@@ -74,7 +74,7 @@
         .insert({
           conversation_id: activeMessageConversation,
           sender_id: currentUser.id,
-          body: body || "",
+          body: body || "📷 Photo",
           image_path: imagePath
         })
         .select("id, conversation_id, sender_id, body, image_path, created_at")
