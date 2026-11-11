@@ -271,6 +271,20 @@
         caller_name: ownDisplayName
       }, callId);
 
+      // Deliver a system push alert if the recipient has enabled Web Push.
+      supabaseClient.functions.invoke("send-push-notification", {
+        body: {
+          event_type: "incoming_call",
+          target_user_id: friendId,
+          call_mode: mode,
+          caller_name: ownDisplayName
+        }
+      }).then(({ error }) => {
+        if (error) console.warn("Incoming call push could not be sent:", error);
+      }).catch(error => {
+        console.warn("Incoming call push request failed:", error);
+      });
+
       setCallState("Calling " + activeCall.peerName + "...");
       ringTimer = setTimeout(async () => {
         if (activeCall?.id === callId && peer?.connectionState !== "connected") {
