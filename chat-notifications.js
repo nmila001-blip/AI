@@ -6,7 +6,69 @@
   if (document.body.dataset.page !== "messages") return;
 
   const button = document.getElementById("enable-chat-notifications");
+  const muteButton = document.getElementById("mute-chat-notifications");
   let toastTimer = null;
+  let notificationUserId = null;
+  let currentMuteTarget = null;
+
+  function mutedChatsKey(userId) {
+    return "aiTutorMutedChats:" + userId;
+  }
+
+  function getMutedChats(userId = notificationUserId) {
+    if (!userId) return {};
+    try {
+      return JSON.parse(localStorage.getItem(mutedChatsKey(userId)) || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function isChatMuted(kind, id, userId = notificationUserId) {
+    if (!userId || !id) return false;
+    return Boolean(getMutedChats(userId)[kind + ":" + id]);
+  }
+
+  function updateMuteButton() {
+    if (!muteButton) return;
+    if (!currentMuteTarget || !notificationUserId) {
+      muteButton.hidden = true;
+      return;
+    }
+    muteButton.hidden = false;
+    const muted = isChatMuted(currentMuteTarget.kind, currentMuteTarget.id);
+    muteButton.textContent = muted ? "🔕 Unmute" : "🔔 Mute";
+    muteButton.classList.toggle("is-muted", muted);
+    muteButton.title = muted
+      ? "Turn notifications back on for this conversation"
+      : "Mute notifications for this conversation";
+    muteButton.setAttribute("aria-pressed", String(muted));
+  }
+
+  window.setCurrentChatMuteTarget = function(kind, id) {
+    currentMuteTarget = kind && id ? { kind, id } : null;
+    updateMuteButton();
+  };
+
+  muteButton?.addEventListener("click", () => {
+    if (!currentMuteTarget || !notificationUserId) return;
+    const chats = getMutedChats();
+    const key = currentMuteTarget.kind + ":" + currentMuteTarget.id;
+    if (chats[key]) delete chats[key];
+    else chats[key] = true;
+    try {
+      localStorage.setItem(mutedChatsKey(notificationUserId), JSON.stringify(chats));
+      updateMuteButton();
+      const muted = Boolean(chats[key]);
+      showToast(
+        muted ? "Conversation muted" : "Conversation unmuted",
+        muted ? "You won't receive alerts for this chat." : "Notifications are back on for this chat."
+      );
+    } catch (error) {
+      console.error("Could not save notification preference:", error);
+      showToast("Could not save setting", "Your browser may be blocking local storage.");
+    }
+  });
 
   function updateButton() {
     if (!button) return;
@@ -108,6 +170,8 @@
       await supabaseClient.removeChannel(notificationChannel);
       notificationChannel = null;
     }
+    notificationUserId = userId || null;
+    updateMuteButton();
     if (!userId) return;
 
     notificationChannel = supabaseClient
@@ -119,6 +183,8 @@
       }, async payload => {
         const message = payload.new;
         if (!message || message.sender_id === userId) return;
+        if (isChatMuted("group", message.group_id, userId)) return;
+        if (isChatMuted("direct", message.conversation_id, userId)) return;
         if (typeof activeMessageConversation !== "undefined" &&
             activeMessageConversation === message.conversation_id &&
             !document.hidden && document.hasFocus()) return;
