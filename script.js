@@ -1386,6 +1386,7 @@ async function openMessageConversation(friendId, friendName) {
 
     activeMessageConversation = conversation.id;
     activeMessageFriend = friendId;
+    window.setCurrentChatMuteTarget?.("direct", conversation.id);
 
     document.getElementById("message-empty").hidden = true;
     document.getElementById("message-thread").hidden = false;
