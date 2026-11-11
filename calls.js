@@ -22,6 +22,7 @@
   let callStartedAt = null;
   let muted = false;
   let cameraEnabled = true;
+  let answerReceived = false;
 
   const rtcConfig = {
     iceServers: [
@@ -178,6 +179,17 @@
       }
     };
 
+    peer.oniceconnectionstatechange = () => {
+      if (!peer) return;
+      console.info("Call ICE state:", peer.iceConnectionState);
+      if (peer.iceConnectionState === "checking") {
+        setCallState("Establishing secure connection...");
+      } else if (peer.iceConnectionState === "failed") {
+        setCallState("Network connection failed");
+        $("call-error").textContent = "The devices exchanged call details, but could not connect media. A TURN relay may be needed on one of these networks.";
+      }
+    };
+
     peer.onconnectionstatechange = () => {
       if (!peer) return;
       const state = peer.connectionState;
@@ -237,6 +249,7 @@
     }
 
     const callId = createCallId();
+    answerReceived = false;
     activeCall = {
       id: callId,
       peerId: friendId,
@@ -288,20 +301,26 @@
       setCallState("Calling " + activeCall.peerName + "...");
       ringTimer = setTimeout(async () => {
         if (activeCall?.id === callId && peer?.connectionState !== "connected") {
-          try { await sendSignal(friendId, "cancel", {}, callId); } catch {}
-          supabaseClient.functions.invoke("send-push-notification", {
-            body: {
-              event_type: "missed_call",
-              target_user_id: friendId,
-              call_mode: mode,
-              caller_name: ownDisplayName,
-              message_id: callId
-            }
-          }).then(({ error }) => {
-            if (error) console.warn("Missed call push could not be sent:", error);
-          }).catch(error => console.warn("Missed call push request failed:", error));
-          setCallState("No answer");
-          setTimeout(cleanupCall, 1200);
+          if (answerReceived) {
+            try { await sendSignal(friendId, "hangup", {}, callId); } catch {}
+            setCallState("Network connection failed");
+            $("call-error").textContent = "Your friend answered, but the audio connection did not finish. This can happen when a network requires a TURN relay.";
+          } else {
+            try { await sendSignal(friendId, "cancel", {}, callId); } catch {}
+            supabaseClient.functions.invoke("send-push-notification", {
+              body: {
+                event_type: "missed_call",
+                target_user_id: friendId,
+                call_mode: mode,
+                caller_name: ownDisplayName,
+                message_id: callId
+              }
+            }).then(({ error }) => {
+              if (error) console.warn("Missed call push could not be sent:", error);
+            }).catch(error => console.warn("Missed call push request failed:", error));
+            setCallState("No answer");
+          }
+          setTimeout(cleanupCall, 3500);
         }
       }, 35000);
 
@@ -348,6 +367,7 @@
     if (!activeCall || activeCall.id !== signal.call_id) return;
 
     if (type === "answer" && activeCall.role === "caller" && peer) {
+      answerReceived = true;
       await peer.setRemoteDescription(new RTCSessionDescription(signal.data.description));
       await flushCandidates();
       setCallState("Connecting...");
@@ -456,6 +476,7 @@
     remoteStream = null;
     pendingCandidates = [];
     activeCall = null;
+    answerReceived = false;
     muted = false;
     cameraEnabled = true;
 
