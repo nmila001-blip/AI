@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor | Token Shop</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="store.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+  <script src="cosmetics.js" defer></script>
+  <script src="store.js" defer></script>
+</head>
+<body data-page="shop">
+  <div id="app"></div>
+  <main class="main-content">
+    <header class="topbar">
+      <div><p class="eyebrow">MAKE IT YOURS</p><h1>Token Shop</h1></div>
+      <div class="token-wallet"><span>✧</span><strong id="shop-balance">—</strong><small>tokens</small></div>
+    </header>
+    <section class="shop-hero">
+      <div><span class="shop-kicker">YOUR REWARDS, YOUR STYLE</span><h2>Customize your<br><span>study space.</span></h2><p>Earn tokens by getting practice questions right, then spend them on themes, avatars, and chat styles.</p></div>
+      <div class="shop-orb">✧</div>
+    </section>
+    <section class="shop-section">
+      <div class="section-heading"><div><p class="eyebrow">THE COLLECTION</p><h2>Available customizations</h2></div><span class="small-muted">Cosmetic items only · no pay-to-win</span></div>
+      <div id="shop-items" class="shop-grid"><div class="shop-loading">Loading the shop...</div></div>
+      <p id="shop-status" class="shop-status" role="status"></p>
+    </section>
+    <section class="panel shop-how">
+      <h2>How to earn tokens</h2>
+      <p>Turn on <strong>Practice mode</strong> in AI Tutor, answer the tutor's questions, and earn <strong>5 tokens</strong> for a correct answer. Each practice question can only reward tokens once.</p>
+      <a class="secondary-button" href="tutor.html">Start practicing →</a>
+    </section>
+  </main>
+</body>
+</html>
