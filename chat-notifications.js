@@ -101,4 +101,89 @@
   });
 
   updateButton();
+
+  let notificationChannel = null;
+  async function connectNotificationChannel(userId) {
+    if (notificationChannel) {
+      await supabaseClient.removeChannel(notificationChannel);
+      notificationChannel = null;
+    }
+    if (!userId) return;
+
+    notificationChannel = supabaseClient
+      .channel("all-chat-notification-events-" + userId)
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "chat_messages"
+      }, async payload => {
+        const message = payload.new;
+        if (!message || message.sender_id === userId) return;
+        if (typeof activeMessageConversation !== "undefined" &&
+            activeMessageConversation === message.conversation_id &&
+            !document.hidden && document.hasFocus()) return;
+
+        const { data: conversation } = await supabaseClient
+          .from("conversations")
+          .select("user_one,user_two")
+          .eq("id", message.conversation_id)
+          .maybeSingle();
+        if (!conversation) return;
+
+        const friendId = conversation.user_one === userId
+          ? conversation.user_two : conversation.user_one;
+        const { data: profile } = await supabaseClient
+          .from("user_profiles")
+          .select("display_name")
+          .eq("user_id", friendId)
+          .maybeSingle();
+
+        window.showChatNotification?.({
+          title: profile?.display_name || "New private message",
+          body: message.body || "📷 Photo",
+          tag: "direct-" + message.conversation_id
+        });
+      })
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "group_messages"
+      }, async payload => {
+        const message = payload.new;
+        if (!message || message.sender_id === userId) return;
+        if (typeof activeGroupChatId !== "undefined" &&
+            activeGroupChatId === message.group_id &&
+            !document.hidden && document.hasFocus()) return;
+
+        const [{ data: group }, { data: sender }] = await Promise.all([
+          supabaseClient.from("group_conversations")
+            .select("name").eq("id", message.group_id).maybeSingle(),
+          supabaseClient.from("user_profiles")
+            .select("display_name").eq("user_id", message.sender_id).maybeSingle()
+        ]);
+
+        window.showChatNotification?.({
+          title: group?.name || "Group message",
+          body: (sender?.display_name || "Someone") + ": " + (message.body || "📷 Photo"),
+          tag: "group-" + message.group_id
+        });
+      })
+      .subscribe(status => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.warn("Chat notification listener disconnected:", status);
+        }
+      });
+  }
+
+  supabaseClient.auth.getSession().then(({ data }) => {
+    connectNotificationChannel(data.session?.user?.id || null);
+  });
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      connectNotificationChannel(session?.user?.id || null);
+    } else if (event === "SIGNED_OUT") {
+      connectNotificationChannel(null);
+    }
+  });
 })();
