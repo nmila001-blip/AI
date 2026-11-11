@@ -207,15 +207,13 @@ function updateDashboard() {
 // CHAT DISPLAY
 // ============================================
 
-function addMessage(role, text) {
+function addMessage(role, text, imageDataUrl = null) {
   const container = document.getElementById("chat-messages");
   if (!container) return;
 
   const isUser = role === "user";
-
   const message = document.createElement("div");
-  message.className =
-    `message ${isUser ? "user-message" : "assistant-message"}`;
+  message.className = `message ${isUser ? "user-message" : "assistant-message"}`;
 
   const avatar = document.createElement("div");
   avatar.className = "message-avatar";
@@ -229,11 +227,18 @@ function addMessage(role, text) {
 
   const paragraph = document.createElement("p");
   paragraph.textContent = text;
-
   content.append(name, paragraph);
+
+  if (imageDataUrl) {
+    const image = document.createElement("img");
+    image.src = imageDataUrl;
+    image.alt = "Image attached to AI Tutor message";
+    image.className = "ai-chat-image";
+    content.appendChild(image);
+  }
+
   message.append(avatar, content);
   container.appendChild(message);
-
   container.scrollTop = container.scrollHeight;
 }
 
@@ -305,20 +310,47 @@ function setupChat() {
     event.preventDefault();
 
     const question = input.value.trim();
-    if (!question) return;
+    const imageInput = document.getElementById("chat-image");
+    const imageFile = imageInput?.files?.[0] || null;
+    const attachmentStatus = document.getElementById("chat-attachment-status");
 
+    if (!question && !imageFile) return;
+
+    if (imageFile && (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(imageFile.type) || imageFile.size > 8 * 1024 * 1024)) {
+      if (attachmentStatus) attachmentStatus.textContent = "Choose a JPG, PNG, WEBP, or GIF under 8 MB.";
+      return;
+    }
+
+    let imageDataUrl = null;
+    if (imageFile) {
+      try {
+        imageDataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error("Could not read that image."));
+          reader.readAsDataURL(imageFile);
+        });
+      } catch (error) {
+        if (attachmentStatus) attachmentStatus.textContent = error.message;
+        return;
+      }
+    }
+
+    const userText = question || "Please help me understand this image.";
     const subject = subjectSelect.value;
     const level = levelSelect.value;
 
     input.value = "";
+    if (imageInput) imageInput.value = "";
+    if (attachmentStatus) attachmentStatus.textContent = "";
     sendButton.disabled = true;
 
-    addMessage("user", question);
-    saveHistory(question, subject);
+    addMessage("user", userText, imageDataUrl);
+    saveHistory(userText, subject);
 
     chatMessages.push({
       role: "user",
-      content: question
+      content: userText
     });
 
     showTyping();
@@ -345,7 +377,8 @@ function setupChat() {
           messages: chatMessages,
           subject,
           level,
-          session_id: sessionId
+          session_id: sessionId,
+          image_data_url: imageDataUrl
         })
       });
 
