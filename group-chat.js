@@ -295,24 +295,7 @@
         table: "group_messages",
         filter: "group_id=eq." + group.id
       }, async payload => {
-        if (activeGroup !== group.id) {
-          const { data: groupInfo } = await supabaseClient
-            .from("group_conversations")
-            .select("name")
-            .eq("id", group.id)
-            .maybeSingle();
-          const { data: senderInfo } = await supabaseClient
-            .from("user_profiles")
-            .select("display_name")
-            .eq("user_id", payload.new.sender_id)
-            .maybeSingle();
-          window.showChatNotification?.({
-            title: groupInfo?.name || "Group message",
-            body: (senderInfo?.display_name || "Someone") + ": " + (payload.new.body || "📷 Photo"),
-            tag: "group-" + group.id
-          });
-          return;
-        }
+        if (activeGroup !== group.id) return;
         const { data: profile } = await supabaseClient
           .from("user_profiles")
           .select("user_id,display_name")
