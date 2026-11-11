@@ -433,18 +433,23 @@
   padding: 12px 12px 8px;
   border-bottom: 1px solid #29263b;
 }
-.group-chat-tools > button {
+.group-chat-tools > .primary-button {
   width: 100%;
-  border: 1px solid #55458a;
-  background: #292342;
-  color: #e4dcff;
-  border-radius: 9px;
-  padding: 10px 12px;
+  min-height: 43px;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 19px;
+  color: #fff;
+  background: linear-gradient(110deg, #9875ff, #7055d7);
+  box-shadow: 0 7px 22px #7958ff35;
+  font-size: 13px;
   font-weight: 700;
-  cursor: pointer;
+  transition: .2s;
 }
-.group-chat-tools > button:hover {
-  background: #39305c;
+.group-chat-tools > .primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px #7958ff55;
 }
 #group-chat-list {
   margin-top: 8px;
@@ -560,4 +565,60 @@
 }
 .group-dialog-actions button:disabled {
   opacity: .55;
+}
+
+
+/* Notifications and messages header actions */
+.messages-heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#enable-chat-notifications {
+  min-height: 40px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+#enable-chat-notifications.enabled {
+  color: #b9f5d3;
+  border-color: #45d99555;
+  background: #45d99512;
+}
+.chat-notification-toast {
+  position: fixed;
+  z-index: 10000;
+  right: 22px;
+  bottom: 22px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 15px 17px;
+  border: 1px solid #9875ff55;
+  border-radius: 14px;
+  background: #17182a;
+  color: #f4f1ff;
+  box-shadow: 0 14px 45px #0008;
+  animation: chatToastIn .22s ease-out;
+}
+.chat-notification-toast strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+.chat-notification-toast p {
+  margin: 0;
+  color: #b7b3ca;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+@keyframes chatToastIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 620px) {
+  .messages-heading-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
