@@ -666,3 +666,26 @@ body[data-theme="bg-forest"]{
   background-image:radial-gradient(ellipse at 15% 20%,#2b875455,transparent 45%),radial-gradient(ellipse at 85% 75%,#1c624c55,transparent 48%),linear-gradient(145deg,#07140f,#10291f 55%,#07131a);
   background-attachment:fixed;
 }
+
+
+/* Make the new scenic backgrounds visible through the page's content panels. */
+body[data-theme^="bg-"] .main-content {
+  background: transparent;
+}
+body[data-theme^="bg-"] .subject-card,
+body[data-theme^="bg-"] .panel,
+body[data-theme^="bg-"] .shop-item,
+body[data-theme^="bg-"] .shop-hero,
+body[data-theme^="bg-"] .chat-layout,
+body[data-theme^="bg-"] .history-item,
+body[data-theme^="bg-"] .account-info,
+body[data-theme^="bg-"] .auth-panel {
+  background-color: rgba(10, 13, 29, .78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+body[data-theme^="bg-"] .sidebar {
+  background-color: rgba(8, 11, 25, .88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
