@@ -638,3 +638,31 @@ body[data-bubble="lavender"] .message-content,body[data-bubble="lavender"] .mess
 body[data-bubble="lavender"] .user-message .message-content,body[data-bubble="lavender"] .message-row.mine .message-bubble{background:#493568}
 body[data-bubble="graphite"] .message-content,body[data-bubble="graphite"] .message-bubble{background:#252a33;border-color:#aab4c455}
 body[data-bubble="graphite"] .user-message .message-content,body[data-bubble="graphite"] .message-row.mine .message-bubble{background:#39414e}
+
+
+/* Unlockable full-page background cosmetics */
+body[data-theme="bg-stars"]{
+  --bg:#070b1b;
+  background-color:#070b1b;
+  background-image:radial-gradient(1px 1px at 12% 18%,#ffffffbb 98%,transparent),radial-gradient(2px 2px at 72% 32%,#a9c8ff99 98%,transparent),radial-gradient(1px 1px at 43% 76%,#ffffffaa 98%,transparent),radial-gradient(1px 1px at 88% 84%,#ffffff99 98%,transparent),radial-gradient(ellipse at 50% 0%,#27366a88,transparent 58%);
+  background-size:170px 170px,230px 230px,190px 190px,260px 260px,auto;
+  background-attachment:fixed;
+}
+body[data-theme="bg-sunset"]{
+  --bg:#160d1b;
+  background-color:#160d1b;
+  background-image:radial-gradient(ellipse at 15% 15%,#e77a5b55,transparent 48%),radial-gradient(ellipse at 85% 75%,#9b4caa55,transparent 48%),linear-gradient(135deg,#1c1020,#31182a 55%,#111327);
+  background-attachment:fixed;
+}
+body[data-theme="bg-nebula"]{
+  --bg:#0b0920;
+  background-color:#0b0920;
+  background-image:radial-gradient(ellipse at 20% 25%,#6d42bd77,transparent 45%),radial-gradient(ellipse at 82% 68%,#176caa66,transparent 48%),radial-gradient(ellipse at 55% 5%,#c34d9c33,transparent 38%),linear-gradient(140deg,#09091b,#15102d 60%,#071625);
+  background-attachment:fixed;
+}
+body[data-theme="bg-forest"]{
+  --bg:#07140f;
+  background-color:#07140f;
+  background-image:radial-gradient(ellipse at 15% 20%,#2b875455,transparent 45%),radial-gradient(ellipse at 85% 75%,#1c624c55,transparent 48%),linear-gradient(145deg,#07140f,#10291f 55%,#07131a);
+  background-attachment:fixed;
+}
