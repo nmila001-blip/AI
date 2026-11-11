@@ -569,3 +569,38 @@ select:focus, input:focus, textarea:focus { border-color: #9875ff; box-shadow: 0
     width: 100%;
   }
 }
+
+
+/* AI Tutor photo attachments */
+.chat-attachment-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0 8px;
+}
+.chat-attach-button {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #55458a;
+  border-radius: 9px;
+  padding: 8px 12px;
+  color: #d8ceff;
+  background: #211d35;
+  font-size: 13px;
+  cursor: pointer;
+}
+.chat-attach-button:hover {
+  background: #30274d;
+}
+.chat-attachment-status {
+  color: #aaa6c4;
+  font-size: 12px;
+}
+.ai-chat-image {
+  display: block;
+  max-width: min(320px, 100%);
+  max-height: 260px;
+  margin-top: 10px;
+  border-radius: 12px;
+  object-fit: contain;
+}
