@@ -24,12 +24,44 @@
   let cameraEnabled = true;
   let answerReceived = false;
 
-  const rtcConfig = {
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" }
-    ]
-  };
+  // Metered credential-scoped API key. This key can retrieve ICE servers
+  // for this TURN credential only; do not replace it with the account Secret Key.
+  const METERED_TURN_API_KEY = "eb34c7dcd5288876a638626ad6cb10ef305d";
+  const METERED_APP_DOMAIN = "ai-tutor-calls.metered.live";
+  let cachedIceServers = null;
+  let iceServersRequest = null;
+
+  async function getIceServers() {
+    if (cachedIceServers) return cachedIceServers;
+    if (iceServersRequest) return iceServersRequest;
+
+    iceServersRequest = (async () => {
+      const url = `https://${METERED_APP_DOMAIN}/api/v1/turn/credentials?apiKey=${encodeURIComponent(METERED_TURN_API_KEY)}`;
+      const response = await fetch(url, { method: "GET", cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error(`Could not retrieve TURN servers from Metered (HTTP ${response.status}). Wait a couple of minutes if the credential was just created, then refresh.`);
+      }
+
+      const servers = await response.json();
+      if (!Array.isArray(servers) || !servers.some(server =>
+        server && server.urls && String(server.urls).startsWith("turn")
+      )) {
+        throw new Error("Metered returned an invalid TURN server list.");
+      }
+
+      cachedIceServers = servers;
+      console.info("Metered TURN servers loaded:", servers.length);
+      return cachedIceServers;
+    })();
+
+    try {
+      return await iceServersRequest;
+    } catch (error) {
+      iceServersRequest = null;
+      throw error;
+    }
+  }
 
   function setCallText(id, value) {
     const element = $(id);
@@ -149,8 +181,9 @@
     }
   }
 
-  function createPeer(targetId) {
-    peer = new RTCPeerConnection(rtcConfig);
+  async function createPeer(targetId) {
+    const iceServers = await getIceServers();
+    peer = new RTCPeerConnection({ iceServers });
     remoteStream = new MediaStream();
     $("call-remote-video").srcObject = remoteStream;
 
@@ -272,7 +305,7 @@
     try {
       await subscribeOwnChannel();
       await addLocalMedia(mode);
-      createPeer(friendId);
+      await createPeer(friendId);
       localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
 
       const offer = await peer.createOffer();
@@ -410,7 +443,7 @@
 
     try {
       await addLocalMedia(call.mode);
-      createPeer(call.peerId);
+      await createPeer(call.peerId);
       localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
 
       await peer.setRemoteDescription(new RTCSessionDescription(call.offer));
