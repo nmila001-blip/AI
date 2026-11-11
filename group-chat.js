@@ -26,6 +26,12 @@
     groupChannel = null;
   }
   window.closeGroupChatChannel = closeGroupChannel;
+  window.deactivateGroupChat = async function() {
+    activeGroup = null;
+    window.activeGroupChatId = null;
+    await closeGroupChannel();
+    await loadGroups();
+  };
 
   async function loadGroups() {
     if (!currentUser || !list) return;
