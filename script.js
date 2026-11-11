@@ -1416,7 +1416,7 @@ async function loadConversationMessages(conversationId) {
 
   const { data, error } = await supabaseClient
     .from("chat_messages")
-    .select("id, conversation_id, sender_id, body, created_at")
+    .select("id, conversation_id, sender_id, body, image_path, created_at")
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true })
     .limit(200);
@@ -1459,7 +1459,20 @@ function appendPrivateMessage(message) {
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble";
-  bubble.textContent = message.body;
+  bubble.textContent = message.body || "";
+
+  if (message.image_path) {
+    const image = document.createElement("img");
+    image.className = "shared-chat-image";
+    image.alt = "Photo attachment";
+    image.loading = "lazy";
+    bubble.appendChild(image);
+    supabaseClient.storage.from("chat-media")
+      .createSignedUrl(message.image_path, 3600)
+      .then(({ data, error }) => {
+        if (!error && data?.signedUrl) image.src = data.signedUrl;
+      });
+  }
 
   const time = document.createElement("span");
   time.className = "message-time";
