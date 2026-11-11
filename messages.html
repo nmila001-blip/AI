@@ -12,6 +12,8 @@
   <script src="messages-enhancements.js" defer></script>
   <script src="messages-live.js" defer></script>
   <script src="calls.js" defer></script>
+  <script src="messages-media.js" defer></script>
+  <script src="group-chat.js" defer></script>
 </head>
 <body data-page="messages">
   <div id="app"></div>
@@ -31,6 +33,10 @@
         <div class="messages-panel-heading">
           <h2>Conversations</h2>
           <span>Friends</span>
+        </div>
+        <div class="group-chat-tools">
+          <button type="button" id="create-group-button">＋ New group</button>
+          <div id="group-chat-list"></div>
         </div>
         <div id="message-friends">
           <div class="messages-placeholder">Loading friends...</div>
@@ -60,10 +66,13 @@
           <div id="message-list" class="message-list" aria-live="polite"></div>
 
           <form id="message-form" class="message-composer">
+            <label class="message-attach-button" for="message-image" title="Attach a photo">＋</label>
+            <input id="message-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
             <textarea id="message-input" maxlength="4000" rows="2"
               placeholder="Write a message..." disabled></textarea>
             <button id="message-send" type="submit" disabled>Send</button>
           </form>
+          <p id="message-attachment-status" class="message-status"></p>
           <p id="message-status" class="message-status"></p>
         </div>
       </section>
