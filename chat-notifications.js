@@ -75,7 +75,6 @@
         if (error) console.warn("Could not sync notification mute:", error);
       });
       updateMuteButton();
-      const muted = Boolean(chats[key]);
       showToast(
         muted ? "Conversation muted" : "Conversation unmuted",
         muted ? "You won't receive alerts for this chat." : "Notifications are back on for this chat."
