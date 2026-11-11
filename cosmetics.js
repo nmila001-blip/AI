@@ -1,1 +1,38 @@
-(function(){async function applyCosmetics(){try{const {data:{session}}=await supabaseClient.auth.getSession();if(!session?.user)return;const {data,error}=await supabaseClient.from("user_profiles").select("equipped_theme,equipped_avatar,equipped_bubble").eq("user_id",session.user.id).maybeSingle();if(error||!data)return;document.body.dataset.theme=data.equipped_theme||"violet";document.body.dataset.bubble=data.equipped_bubble||"violet";const avatar=data.equipped_avatar||"spark";if(avatar!=="spark")document.querySelectorAll(".avatar,.large-avatar,.profile-avatar").forEach(el=>el.textContent=avatar);}catch(error){console.warn("Cosmetics could not be applied:",error);}}if(typeof supabaseClient!=="undefined"){supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyCosmetics);else applyCosmetics();}})();
+(function(){
+  async function applyCosmetics(){
+    try {
+      const {data:{session}}=await supabaseClient.auth.getSession();
+      if(!session?.user)return;
+      const {data,error}=await supabaseClient
+        .from("user_profiles")
+        .select("equipped_theme,equipped_avatar,equipped_bubble")
+        .eq("user_id",session.user.id)
+        .maybeSingle();
+      if(error||!data)return;
+
+      const theme=data.equipped_theme||"violet";
+      document.body.dataset.theme=theme;
+      document.body.dataset.bubble=data.equipped_bubble||"violet";
+
+      const avatar=data.equipped_avatar||"spark";
+      if(avatar!=="spark"){
+        document.querySelectorAll(".avatar,.large-avatar,.profile-avatar")
+          .forEach(el=>el.textContent=avatar);
+      }
+    } catch(error) {
+      console.warn("Cosmetics could not be applied:",error);
+    }
+  }
+
+  // Make this available to the shop so a newly equipped item appears immediately.
+  window.applySavedCosmetics=applyCosmetics;
+
+  if(typeof supabaseClient!=="undefined"){
+    supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));
+    if(document.readyState==="loading"){
+      document.addEventListener("DOMContentLoaded",applyCosmetics);
+    } else {
+      applyCosmetics();
+    }
+  }
+})();
