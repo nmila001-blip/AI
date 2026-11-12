@@ -6,18 +6,21 @@
   const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='appearance.css?v=1';document.head.appendChild(sheet);
   function setupWorkspaceMenu(){
     const nav=document.querySelector('.nav-links');if(!nav || nav.querySelector('[data-workspace-shortcut]'))return;
-    const link=document.createElement('a');link.href='workspace.html';link.dataset.workspaceShortcut='true';link.className='nav-link';
-    if(document.body.dataset.page==='workspace'){link.classList.add('active');link.setAttribute('aria-current','page');}
-    const icon=document.createElement('span');icon.className='nav-icon';icon.textContent='▦';icon.setAttribute('aria-hidden','true');
-    const label=document.createElement('span');label.textContent='Tasks & Games';link.append(icon,label);
-    const shop=nav.querySelector('a[href="shop.html"]');if(shop)shop.after(link);else nav.appendChild(link);
+    let previous=nav.querySelector('a[href="shop.html"]');
+    const view=new URLSearchParams(location.search).get('view')==='todo'?'todo':'games';
+    for(const [id,label,symbol] of [['todo','To-do List','✓'],['games','Games','▦']]){
+      const link=document.createElement('a');link.href='workspace.html?view='+id;link.dataset.workspaceShortcut=id;link.className='nav-link';
+      if(document.body.dataset.page==='workspace'&&view===id){link.classList.add('active');link.setAttribute('aria-current','page');}
+      const icon=document.createElement('span');icon.className='nav-icon';icon.textContent=symbol;icon.setAttribute('aria-hidden','true');
+      const text=document.createElement('span');text.textContent=label;link.append(icon,text);if(previous)previous.after(link);else nav.append(link);previous=link;
+    }
   }
   function setupMode(){
     if(document.getElementById('color-mode-toggle'))return;
     const button=document.createElement('button');button.id='color-mode-toggle';button.type='button';button.className='secondary-button';
     const host=document.querySelector('.topbar, .messages-heading-actions, .messages-heading');
     if(host)host.appendChild(button);else{button.classList.add('color-mode-floating');document.body.appendChild(button);}
-    const workspace=document.createElement('a');workspace.href='workspace.html';workspace.className='secondary-button';workspace.textContent='Tasks & Games';if(host)host.appendChild(workspace);else document.querySelector('main')?.prepend(workspace);
+    const workspace=document.createElement('a');workspace.href='workspace.html?view=games';workspace.className='secondary-button';workspace.textContent='Games';if(host)host.appendChild(workspace);else document.querySelector('main')?.prepend(workspace);
     button.addEventListener('click',()=>{savedMode=root.dataset.mode==='light'?'dark':'light';try{localStorage.setItem('ai-tutor-color-mode',savedMode);}catch{}setMode(savedMode);});setMode(root.dataset.mode);
   }
   system.addEventListener?.('change',event=>{if(savedMode!=='light'&&savedMode!=='dark')setMode(event.matches?'light':'dark');});
@@ -34,7 +37,11 @@
     }catch(error){console.warn('Cosmetics could not be applied:',error);}
   }
   window.applySavedCosmetics=applyCosmetics;
-  function ready(){setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});const extra=document.createElement('script');extra.src='profile-customization.js?v=1';extra.onload=()=>applyCosmetics();document.head.appendChild(extra);if(typeof supabaseClient!=='undefined')applyCosmetics();}
+  function ready(){
+    setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});
+    if(document.body.dataset.page==='workspace'){const views=document.createElement('script');views.src='workspace-views.js?v=1';document.head.appendChild(views);}
+    const extra=document.createElement('script');extra.src='profile-customization.js?v=1';extra.onload=()=>applyCosmetics();document.head.appendChild(extra);if(typeof supabaseClient!=='undefined')applyCosmetics();
+  }
   if(typeof supabaseClient!=='undefined')supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
 })();
