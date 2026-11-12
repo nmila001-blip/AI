@@ -1,0 +1,42 @@
+/* Free appearance modes are independent of purchased cosmetic accents. */
+:root { color-scheme: dark; }
+html[data-mode=dark] body { --text:#f4f6ff; --muted:#b2bad0; }
+#color-mode-toggle { flex-shrink:0; white-space:nowrap; }
+.color-mode-floating { position:fixed; right:16px; top:12px; z-index:9000; }
+#call-ringtone-select { color:#ffffff!important; background:#182239!important; border:2px solid #aabde8!important; font-size:14px; font-weight:700; width:auto; min-width:150px; min-height:44px; padding:9px 12px; color-scheme:dark; opacity:1; }
+#call-ringtone-select option { color:#ffffff; background:#182239; font-weight:600; }
+label[for=call-ringtone-select] { color:var(--text); font-size:13px; font-weight:700; }
+:where(button,a,input,textarea,select):focus-visible { outline:3px solid #f1bc4b!important; outline-offset:3px; }
+body[data-theme=pirate] { --bg:#091820; --sidebar:#10252d; --panel:#15313a; --panel-light:#20434b; --purple:#e3b958; --purple-light:#ffe19b; background:radial-gradient(ellipse at 85% 5%,#25687755,transparent 60%),#091820; }
+body[data-theme=pirate] .primary-button,body[data-theme=pirate] .brand-mark { background:linear-gradient(110deg,#94620f,#68420c); color:#fff; }
+body[data-bubble=treasure] .message-content,body[data-bubble=treasure] .message-bubble { background:#493813; border:1px solid #a88843; color:#fff4d6; }
+body[data-bubble=treasure] .user-message .message-content,body[data-bubble=treasure] .message-row.mine .message-bubble { background:#61491b; }
+body[data-bubble=treasure] .message-content p { color:#fff4d6; }
+html[data-mode=light] body { --bg:#f2f5fb!important; --sidebar:#ffffff!important; --panel:#ffffff!important; --panel-light:#e8eef8!important; --border:#b8c4d6!important; --text:#172238!important; --muted:#455570!important; --purple:#603bb5; --purple-light:#513095; --danger:#ad233c; color:#172238; background-color:#f2f5fb!important; background-image:none!important; }
+html[data-mode=light] body[data-theme=ocean] { --purple:#086784; --purple-light:#075571; }
+html[data-mode=light] body[data-theme=emerald] { --purple:#176547; --purple-light:#14533c; }
+html[data-mode=light] body[data-theme=rose] { --purple:#9b275d; --purple-light:#84214f; }
+html[data-mode=light] body[data-theme=pirate] { --purple:#79500d; --purple-light:#68400a; background-image:radial-gradient(ellipse at top right,#c3e7ef,transparent 65%)!important; }
+html[data-mode=light] .sidebar,html[data-mode=light] .panel,html[data-mode=light] .subject-card,html[data-mode=light] .shop-item,html[data-mode=light] .chat-layout,html[data-mode=light] .history-item,html[data-mode=light] .account-info,html[data-mode=light] .auth-panel,html[data-mode=light] .messages-layout,html[data-mode=light] .messages-chat-panel,html[data-mode=light] .call-card,html[data-mode=light] .group-create-dialog { color:var(--text)!important; background:#fff!important; border-color:var(--border)!important; }
+html[data-mode=light] .hero,html[data-mode=light] .shop-hero,html[data-mode=light] .sidebar-tip { color:var(--text)!important; background:linear-gradient(120deg,#e6e9fb,#f5f8ff)!important; }
+html[data-mode=light] .messages-page,html[data-mode=light] .account-benefit,html[data-mode=light] .group-member-option { color:var(--text); }
+html[data-mode=light] .messages-heading p,html[data-mode=light] .messages-empty p,html[data-mode=light] .message-friend-info p,html[data-mode=light] .message-thread-header p,html[data-mode=light] .messages-panel-heading span,html[data-mode=light] .message-sender,html[data-mode=light] .message-time,html[data-mode=light] .message-read-status,html[data-mode=light] .messages-placeholder,html[data-mode=light] .group-list-empty,html[data-mode=light] .group-create-dialog p,html[data-mode=light] .call-card-top p:not(.call-eyebrow),html[data-mode=light] .chat-disclaimer,html[data-mode=light] .nav-label,html[data-mode=light] .chat-attachment-status { color:var(--muted)!important; }
+html[data-mode=light] .secondary-button,html[data-mode=light] .friend-action,html[data-mode=light] .messages-back,html[data-mode=light] .message-attach-button,html[data-mode=light] .chat-attach-button,html[data-mode=light] .message-call-actions button,html[data-mode=light] .chat-mute-button,html[data-mode=light] .group-dialog-actions button { color:#30234d; background:#e8e4f5; border-color:#9183b3; }
+html[data-mode=light] .primary-button,html[data-mode=light] .send-button,html[data-mode=light] .message-composer button,html[data-mode=light] .group-chat-tools>.primary-button { color:#fff!important; background:linear-gradient(110deg,#6341aa,#493181)!important; }
+html[data-mode=light] .nav-link.active,html[data-mode=light] .nav-link:hover,html[data-mode=light] .quiet-button:hover,html[data-mode=light] .message-friend:hover,html[data-mode=light] .message-friend.active,html[data-mode=light] .friend-card { color:var(--text); background:#e8eef8; }
+html[data-mode=light] input,html[data-mode=light] textarea,html[data-mode=light] select,html[data-mode=light] .message-composer textarea,html[data-mode=light] .group-name-label input,html[data-mode=light] .chat-form { color:#172238; background:#fff; border-color:#8597b3; }
+html[data-mode=light] input::placeholder,html[data-mode=light] textarea::placeholder { color:#52627b; opacity:1; }
+html[data-mode=light] select option { color:#172238; background:#fff; }
+html[data-mode=light] #call-ringtone-select { color:#10203a!important; background:#ffffff!important; border-color:#435e89!important; color-scheme:light; }
+html[data-mode=light] #call-ringtone-select option { color:#10203a; background:#fff; }
+html[data-mode=light] .message-content,html[data-mode=light] .message-bubble { color:#172238!important; background:#e5eaf5!important; border-color:#b6c4dc; }
+html[data-mode=light] .user-message .message-content,html[data-mode=light] .message-row.mine .message-bubble { background:#ddd5f2!important; }
+html[data-mode=light] .message-content p { color:#172238!important; }
+html[data-mode=light] .message-content strong,html[data-mode=light] .text-link,html[data-mode=light] .card-action,html[data-mode=light] .history-item a,html[data-mode=light] .eyebrow,html[data-mode=light] .messages-eyebrow,html[data-mode=light] .call-eyebrow,html[data-mode=light] .call-duration,html[data-mode=light] .shop-price,html[data-mode=light] .shop-kicker,html[data-mode=light] .pill { color:#52328c!important; }
+html[data-mode=light] body[data-bubble=treasure] .message-content,html[data-mode=light] body[data-bubble=treasure] .message-bubble { background:#fff0be!important; color:#43300c!important; }
+html[data-mode=light] body[data-bubble=treasure] .message-content p { color:#43300c!important; }
+html[data-mode=light] .chat-notification-toast { background:#fff; color:#172238; border-color:#7a68ae; }
+html[data-mode=light] .chat-notification-toast p { color:#455570; }
+html[data-mode=light] .call-error,html[data-mode=light] .message-status,html[data-mode=light] #push-notification-status { color:#a21d38!important; }
+html[data-mode=light] .form-message,html[data-mode=light] .shop-status { color:#17623b; }
+@media(max-width:650px) { #color-mode-toggle { min-height:42px; } .topbar { flex-wrap:wrap; } #call-ringtone-select { min-width:130px; max-width:100%; } }
