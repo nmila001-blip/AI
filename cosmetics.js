@@ -39,7 +39,7 @@
   window.applySavedCosmetics=applyCosmetics;
   function ready(){
     setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});
-    if(document.body.dataset.page==='workspace'){const views=document.createElement('script');views.src='workspace-views.js?v=1';document.head.appendChild(views);}
+    if(document.body.dataset.page==='workspace'){const views=document.createElement('script');views.src='workspace-views.js?v=1';views.onload=()=>{if(new URLSearchParams(location.search).get('view')!=='todo'){const arcade=document.createElement('script');arcade.src='arcade-action.js?v=1';document.head.appendChild(arcade);}};document.head.appendChild(views);}
     const extra=document.createElement('script');extra.src='profile-customization.js?v=1';extra.onload=()=>applyCosmetics();document.head.appendChild(extra);if(typeof supabaseClient!=='undefined')applyCosmetics();
   }
   if(typeof supabaseClient!=='undefined')supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));
