@@ -37,10 +37,16 @@
     }catch(error){console.warn('Cosmetics could not be applied:',error);}
   }
   window.applySavedCosmetics=applyCosmetics;
+  function loadScript(src,onload,onerror){const script=document.createElement('script');script.src=src;if(onload)script.onload=onload;if(onerror)script.onerror=onerror;document.head.appendChild(script);}
+  function loadWorkspace(){
+    const todo=new URLSearchParams(location.search).get('view')==='todo';
+    const views=()=>loadScript('workspace-views.js?v=1',()=>{if(!todo){const ready=()=>window.dispatchEvent(new Event('arcade-ready'));loadScript('arcade-action.js?v=1',ready,ready);}});
+    if(todo)views();else loadScript('game-payments.js?v=1',views,()=>{const grid=document.querySelector('.workspace-grid');if(grid)grid.hidden=true;const p=document.createElement('p');p.textContent='Game payment checks could not load. Refresh to try again.';document.querySelector('main')?.append(p);});
+  }
   function ready(){
     setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});
-    if(document.body.dataset.page==='workspace'){const views=document.createElement('script');views.src='workspace-views.js?v=1';views.onload=()=>{if(new URLSearchParams(location.search).get('view')!=='todo'){const arcade=document.createElement('script');arcade.src='arcade-action.js?v=1';document.head.appendChild(arcade);}};document.head.appendChild(views);}
-    const extra=document.createElement('script');extra.src='profile-customization.js?v=1';extra.onload=()=>applyCosmetics();document.head.appendChild(extra);if(typeof supabaseClient!=='undefined')applyCosmetics();
+    if(document.body.dataset.page==='workspace')loadWorkspace();
+    loadScript('profile-customization.js?v=1',()=>applyCosmetics());if(typeof supabaseClient!=='undefined')applyCosmetics();
   }
   if(typeof supabaseClient!=='undefined')supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
