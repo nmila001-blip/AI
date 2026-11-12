@@ -5,49 +5,18 @@
   setMode(savedMode==='light'||savedMode==='dark'?savedMode:system.matches?'light':'dark');
   const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='appearance.css?v=1';document.head.appendChild(sheet);
   function setupWorkspaceMenu(){
-    const nav=document.querySelector('.nav-links');if(!nav || nav.querySelector('[data-workspace-shortcut]'))return;
-    let previous=nav.querySelector('a[href="shop.html"]');
-    const view=new URLSearchParams(location.search).get('view')==='todo'?'todo':'games';
-    for(const [id,label,symbol] of [['todo','To-do List','✓'],['games','Games','▦']]){
-      const link=document.createElement('a');link.href='workspace.html?view='+id;link.dataset.workspaceShortcut=id;link.className='nav-link';
-      if(document.body.dataset.page==='workspace'&&view===id){link.classList.add('active');link.setAttribute('aria-current','page');}
-      const icon=document.createElement('span');icon.className='nav-icon';icon.textContent=symbol;icon.setAttribute('aria-hidden','true');
-      const text=document.createElement('span');text.textContent=label;link.append(icon,text);if(previous)previous.after(link);else nav.append(link);previous=link;
+    const nav=document.querySelector('.nav-links');if(!nav)return;
+    if(!nav.querySelector('[data-workspace-shortcut]')){let previous=nav.querySelector('a[href="shop.html"]');const view=new URLSearchParams(location.search).get('view')==='todo'?'todo':'games';
+      for(const [id,label,symbol]of [['todo','To-do List','✓'],['games','Games','▦']]){const link=document.createElement('a');link.href='workspace.html?view='+id;link.dataset.workspaceShortcut=id;link.className='nav-link';if(document.body.dataset.page==='workspace'&&view===id){link.classList.add('active');link.setAttribute('aria-current','page');}const icon=document.createElement('span');icon.className='nav-icon';icon.textContent=symbol;icon.setAttribute('aria-hidden','true');const text=document.createElement('span');text.textContent=label;link.append(icon,text);if(previous)previous.after(link);else nav.append(link);previous=link;}
     }
+    if(!nav.querySelector('[data-community-shortcut]')){const link=document.createElement('a');link.href='community.html';link.dataset.communityShortcut='true';link.className='nav-link';if(document.body.dataset.page==='community'){link.classList.add('active');link.setAttribute('aria-current','page');}const icon=document.createElement('span');icon.className='nav-icon';icon.textContent='◉';icon.setAttribute('aria-hidden','true');const text=document.createElement('span');text.textContent='Community';link.append(icon,text);const friends=nav.querySelector('a[href="friends.html"]');if(friends)friends.after(link);else nav.append(link);}
   }
-  function setupMode(){
-    if(document.getElementById('color-mode-toggle'))return;
-    const button=document.createElement('button');button.id='color-mode-toggle';button.type='button';button.className='secondary-button';
-    const host=document.querySelector('.topbar, .messages-heading-actions, .messages-heading');
-    if(host)host.appendChild(button);else{button.classList.add('color-mode-floating');document.body.appendChild(button);}
-    const workspace=document.createElement('a');workspace.href='workspace.html?view=games';workspace.className='secondary-button';workspace.textContent='Games';if(host)host.appendChild(workspace);else document.querySelector('main')?.prepend(workspace);
-    button.addEventListener('click',()=>{savedMode=root.dataset.mode==='light'?'dark':'light';try{localStorage.setItem('ai-tutor-color-mode',savedMode);}catch{}setMode(savedMode);});setMode(root.dataset.mode);
-  }
-  system.addEventListener?.('change',event=>{if(savedMode!=='light'&&savedMode!=='dark')setMode(event.matches?'light':'dark');});
-  window.addEventListener('storage',event=>{if(event.key==='ai-tutor-color-mode'){savedMode=event.newValue;setMode(savedMode==='light'||savedMode==='dark'?savedMode:system.matches?'light':'dark');}});
-  async function applyCosmetics(){
-    const ticket=++revision;
-    try{
-      const {data:{session}}=await supabaseClient.auth.getSession();if(ticket!==revision)return;
-      if(!session?.user){delete document.body.dataset.theme;delete document.body.dataset.bubble;window.clearProfileCustomization?.();return;}
-      const {data,error}=await supabaseClient.from('user_profiles').select('equipped_theme,equipped_avatar,equipped_bubble,equipped_banner,equipped_title,avatar_source,avatar_url').eq('user_id',session.user.id).maybeSingle();
-      if(ticket!==revision||error||!data)return;document.body.dataset.theme=data.equipped_theme||'violet';document.body.dataset.bubble=data.equipped_bubble||'violet';
-      if(window.renderProfileCustomization)await window.renderProfileCustomization(data,session.user);
-      else document.querySelectorAll('.avatar,.large-avatar,.profile-avatar').forEach(el=>el.textContent=data.equipped_avatar==='spark'?'✦':data.equipped_avatar||'✦');
-    }catch(error){console.warn('Cosmetics could not be applied:',error);}
-  }
+  function setupMode(){if(document.getElementById('color-mode-toggle'))return;const button=document.createElement('button');button.id='color-mode-toggle';button.type='button';button.className='secondary-button';const host=document.querySelector('.topbar, .messages-heading-actions, .messages-heading');if(host)host.appendChild(button);else{button.classList.add('color-mode-floating');document.body.appendChild(button);}const workspace=document.createElement('a');workspace.href='workspace.html?view=games';workspace.className='secondary-button';workspace.textContent='Games';if(host)host.appendChild(workspace);else document.querySelector('main')?.prepend(workspace);button.addEventListener('click',()=>{savedMode=root.dataset.mode==='light'?'dark':'light';try{localStorage.setItem('ai-tutor-color-mode',savedMode);}catch{}setMode(savedMode);});setMode(root.dataset.mode);}
+  system.addEventListener?.('change',event=>{if(savedMode!=='light'&&savedMode!=='dark')setMode(event.matches?'light':'dark');});window.addEventListener('storage',event=>{if(event.key==='ai-tutor-color-mode'){savedMode=event.newValue;setMode(savedMode==='light'||savedMode==='dark'?savedMode:system.matches?'light':'dark');}});
+  async function applyCosmetics(){const ticket=++revision;try{const {data:{session}}=await supabaseClient.auth.getSession();if(ticket!==revision)return;if(!session?.user){delete document.body.dataset.theme;delete document.body.dataset.bubble;window.clearProfileCustomization?.();return;}const {data,error}=await supabaseClient.from('user_profiles').select('equipped_theme,equipped_avatar,equipped_bubble,equipped_banner,equipped_title,avatar_source,avatar_url').eq('user_id',session.user.id).maybeSingle();if(ticket!==revision||error||!data)return;document.body.dataset.theme=data.equipped_theme||'violet';document.body.dataset.bubble=data.equipped_bubble||'violet';if(window.renderProfileCustomization)await window.renderProfileCustomization(data,session.user);else document.querySelectorAll('.avatar,.large-avatar,.profile-avatar').forEach(el=>el.textContent=data.equipped_avatar==='spark'?'✦':data.equipped_avatar||'✦');}catch(error){console.warn('Cosmetics could not be applied:',error);}}
   window.applySavedCosmetics=applyCosmetics;
   function loadScript(src,onload,onerror){const script=document.createElement('script');script.src=src;if(onload)script.onload=onload;if(onerror)script.onerror=onerror;document.head.appendChild(script);}
-  function loadWorkspace(){
-    const todo=new URLSearchParams(location.search).get('view')==='todo';
-    const views=()=>loadScript('workspace-views.js?v=1',()=>{if(!todo){const ready=()=>window.dispatchEvent(new Event('arcade-ready'));loadScript('arcade-action.js?v=1',ready,ready);}});
-    if(todo)views();else loadScript('game-payments.js?v=1',views,()=>{const grid=document.querySelector('.workspace-grid');if(grid)grid.hidden=true;const p=document.createElement('p');p.textContent='Game payment checks could not load. Refresh to try again.';document.querySelector('main')?.append(p);});
-  }
-  function ready(){
-    setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});
-    if(document.body.dataset.page==='workspace')loadWorkspace();
-    loadScript('profile-customization.js?v=1',()=>applyCosmetics());if(typeof supabaseClient!=='undefined')applyCosmetics();
-  }
-  if(typeof supabaseClient!=='undefined')supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
+  function loadWorkspace(){const todo=new URLSearchParams(location.search).get('view')==='todo';const views=()=>loadScript('workspace-views.js?v=1',()=>{if(!todo){const ready=()=>window.dispatchEvent(new Event('arcade-ready'));loadScript('arcade-action.js?v=1',ready,ready);}});if(todo)views();else loadScript('game-payments.js?v=1',views,()=>{const grid=document.querySelector('.workspace-grid');if(grid)grid.hidden=true;const p=document.createElement('p');p.textContent='Game payment checks could not load. Refresh to try again.';document.querySelector('main')?.append(p);});}
+  function ready(){setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});if(document.body.dataset.page==='workspace')loadWorkspace();loadScript('profile-customization.js?v=1',()=>applyCosmetics());if(typeof supabaseClient!=='undefined')applyCosmetics();}
+  if(typeof supabaseClient!=='undefined')supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
 })();
