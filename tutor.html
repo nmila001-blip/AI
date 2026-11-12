@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js" defer></script>
   <script src="cosmetics.js" defer></script>
+  <script src="practice-rewards.js?v=1" defer></script>
 </head>
 <body data-page="tutor">
   <div id="app"></div>
@@ -17,58 +17,40 @@
       <div><p class="eyebrow">YOUR PERSONAL STUDY ASSISTANT</p><h1>AI Tutor</h1></div>
       <a class="profile-link" href="account.html"><span class="avatar">U</span><span id="top-user">My Account</span></a>
     </header>
-
     <section class="chat-layout">
       <div class="chat-heading">
         <div><span class="online-dot"></span><span class="small-muted">AI TUTOR · READY TO HELP</span></div>
         <button class="quiet-button" id="clear-chat" type="button">Clear chat</button>
       </div>
-
       <div class="chat-settings">
         <label class="practice-toggle">
           <input id="practice-mode" type="checkbox">
-          <span>Practice mode <small>+5 tokens for each correct answer</small></span>
+          <span>Practice mode <small>Math: +5 tokens per verified correct answer, once per question</small></span>
         </label>
         <label>Subject
-          <select id="subject">
-            <option>Math</option>
-            <option>Science</option>
-            <option>History</option>
-            <option>English</option>
-            <option>Computer Science</option>
-            <option>Other</option>
-          </select>
+          <select id="subject"><option>Math</option><option>Science</option><option>History</option><option>English</option><option>Computer Science</option><option>Other</option></select>
         </label>
         <label>Learning level
-          <select id="level">
-            <option>Elementary</option>
-            <option selected>Middle school</option>
-            <option>High school</option>
-            <option>College</option>
-          </select>
+          <select id="level"><option>Elementary</option><option selected>Middle school</option><option>High school</option><option>College</option></select>
         </label>
       </div>
-
-      <div class="chat-messages" id="chat-messages" aria-live="polite">
-        <div class="message assistant-message">
-          <div class="message-avatar">✦</div>
-          <div class="message-content">
-            <strong>Your AI Tutor</strong>
-            <p>Hey! What are you working on today? Ask me a question, or tell me what topic you'd like to understand.</p>
-          </div>
-        </div>
+      <div class="community-actions">
+        <button id="practice-new-question" class="secondary-button" type="button" hidden>New practice question</button>
+        <p id="practice-reward-status" class="small-muted" role="status"></p>
       </div>
-
+      <div class="chat-messages" id="chat-messages" aria-live="polite">
+        <div class="message assistant-message"><div class="message-avatar">✦</div><div class="message-content"><strong>Your AI Tutor</strong><p>Hey! What are you working on today? Ask me a question, or tell me what topic you'd like to understand.</p></div></div>
+      </div>
       <div class="chat-attachment-row">
         <label class="chat-attach-button" for="chat-image">＋ Add photo</label>
         <input id="chat-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
         <span id="chat-attachment-status" class="chat-attachment-status"></span>
       </div>
       <form class="chat-form" id="chat-form">
-        <textarea id="chat-input" rows="1" placeholder="Ask your tutor anything..." ></textarea>
+        <textarea id="chat-input" rows="1" placeholder="Ask your tutor anything..."></textarea>
         <button class="send-button" id="send-button" type="submit" aria-label="Send message">↑</button>
       </form>
-      <p class="chat-disclaimer">Your tutor can make mistakes. Check important answers with your class materials.</p>
+      <p class="chat-disclaimer">Your tutor can make mistakes. Check important answers with your class materials. Verified token practice currently supports numeric Math answers; turn Practice mode off for ordinary AI tutoring.</p>
     </section>
   </main>
 </body>
