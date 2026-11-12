@@ -1284,6 +1284,33 @@ async function loadMessagesPage() {
       });
     }
 
+    // Put the most recently active conversations first.
+    // Conversations without messages stay at the bottom.
+    friendIds.sort((firstId, secondId) => {
+      const firstConversation = conversationByFriend[firstId];
+      const secondConversation = conversationByFriend[secondId];
+
+      const firstMessage = firstConversation
+        ? latestByConversation[firstConversation.id]
+        : null;
+      const secondMessage = secondConversation
+        ? latestByConversation[secondConversation.id]
+        : null;
+
+      const firstTime = firstMessage
+        ? new Date(firstMessage.created_at).getTime()
+        : 0;
+      const secondTime = secondMessage
+        ? new Date(secondMessage.created_at).getTime()
+        : 0;
+
+      if (firstTime !== secondTime) return secondTime - firstTime;
+
+      const firstName = profiles[firstId]?.display_name || "Student";
+      const secondName = profiles[secondId]?.display_name || "Student";
+      return firstName.localeCompare(secondName);
+    });
+
     friendList.innerHTML = friendIds.map(friendId => {
       const profile = profiles[friendId] || { display_name: "Student" };
       const conversation = conversationByFriend[friendId];
