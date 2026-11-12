@@ -4,6 +4,14 @@
   function setMode(mode){root.dataset.mode=mode;root.style.colorScheme=mode;const button=document.getElementById('color-mode-toggle');if(button){button.textContent=mode==='light'?'Dark mode':'Light mode';button.setAttribute('aria-label','Switch to '+(mode==='light'?'dark':'light')+' mode');}}
   setMode(savedMode==='light'||savedMode==='dark'?savedMode:system.matches?'light':'dark');
   const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='appearance.css?v=1';document.head.appendChild(sheet);
+  function setupWorkspaceMenu(){
+    const nav=document.querySelector('.nav-links');if(!nav || nav.querySelector('[data-workspace-shortcut]'))return;
+    const link=document.createElement('a');link.href='workspace.html';link.dataset.workspaceShortcut='true';link.className='nav-link';
+    if(document.body.dataset.page==='workspace'){link.classList.add('active');link.setAttribute('aria-current','page');}
+    const icon=document.createElement('span');icon.className='nav-icon';icon.textContent='▦';icon.setAttribute('aria-hidden','true');
+    const label=document.createElement('span');label.textContent='Tasks & Games';link.append(icon,label);
+    const shop=nav.querySelector('a[href="shop.html"]');if(shop)shop.after(link);else nav.appendChild(link);
+  }
   function setupMode(){
     if(document.getElementById('color-mode-toggle'))return;
     const button=document.createElement('button');button.id='color-mode-toggle';button.type='button';button.className='secondary-button';
@@ -26,7 +34,7 @@
     }catch(error){console.warn('Cosmetics could not be applied:',error);}
   }
   window.applySavedCosmetics=applyCosmetics;
-  function ready(){setupMode();const extra=document.createElement('script');extra.src='profile-customization.js?v=1';extra.onload=()=>applyCosmetics();document.head.appendChild(extra);if(typeof supabaseClient!=='undefined')applyCosmetics();}
+  function ready(){setupMode();setupWorkspaceMenu();const app=document.getElementById('app');if(app)new MutationObserver(setupWorkspaceMenu).observe(app,{childList:true,subtree:true});const extra=document.createElement('script');extra.src='profile-customization.js?v=1';extra.onload=()=>applyCosmetics();document.head.appendChild(extra);if(typeof supabaseClient!=='undefined')applyCosmetics();}
   if(typeof supabaseClient!=='undefined')supabaseClient.auth.onAuthStateChange(()=>setTimeout(applyCosmetics,0));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
 })();
