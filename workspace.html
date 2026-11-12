@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tasks &amp; Games | AI Tutor</title>
+<link rel="icon" href="favicon.svg"><link rel="stylesheet" href="style.css">
+<style>
+.workspace-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}.workspace-form{display:grid;gap:12px;margin:20px 0}.workspace-tools,.workspace-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.workspace-tools label{flex:1;min-width:120px}.workspace-task{padding:16px 0;border-bottom:1px solid var(--border)}.workspace-task h3{font-size:16px;overflow-wrap:anywhere}.workspace-task p{color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.workspace-task[data-completed=true] h3{text-decoration:line-through}.workspace-task-meta{font-size:12px;color:var(--muted);margin:8px 0}.workspace-status{min-height:24px;line-height:1.6;overflow-wrap:anywhere}.workspace-status[data-error=true]{color:var(--danger)}#math-question{font-size:32px;margin:24px 0}.workspace-form input[type=date]{color-scheme:inherit}.workspace-game-note{font-size:13px;color:var(--muted);line-height:1.7}@media(max-width:850px){.workspace-grid{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js" defer></script><script src="cosmetics.js?v=workspace-1" defer></script><script src="workspace.js?v=1" defer></script>
+</head>
+<body data-page="workspace"><div id="app"></div><main class="main-content">
+<header class="topbar"><div><p class="eyebrow">PLAN, PRACTICE, PLAY</p><h1>Tasks &amp; Games</h1></div></header>
+<p id="workspace-auth" role="status">Checking your account...</p>
+<div class="workspace-grid">
+<section class="panel" aria-labelledby="tasks-heading"><h2 id="tasks-heading">My to-do list</h2><p>Your private tasks sync to your signed-in account.</p>
+<form id="task-form" class="workspace-form"><fieldset id="task-fields" disabled style="border:0;padding:0;display:grid;gap:12px">
+<label>Task<input id="task-title" maxlength="200" required placeholder="What do you want to finish?"></label>
+<label>Notes<textarea id="task-notes" maxlength="2000" rows="2"></textarea></label>
+<div class="workspace-tools"><label>Due date<input id="task-due" type="date"></label><label>Priority<select id="task-priority"><option value="low">Low</option><option value="normal" selected>Normal</option><option value="high">High</option></select></label></div>
+<div class="workspace-actions"><button type="submit" id="task-save" class="primary-button">Add task</button><button type="button" id="task-cancel" class="secondary-button" hidden>Cancel edit</button></div>
+</fieldset></form>
+<div class="workspace-tools"><label>Show<select id="task-filter"><option value="all">All tasks</option><option value="open">Open</option><option value="done">Completed</option><option value="overdue">Overdue</option></select></label><label>Sort by<select id="task-sort"><option value="date">Due date</option><option value="priority">Priority</option><option value="newest">Newest</option></select></label></div>
+<p id="task-status" class="workspace-status" role="status"></p><div id="task-list"></div></section>
+<section class="panel" aria-labelledby="game-heading"><h2 id="game-heading">Math challenge</h2><p class="workspace-game-note">Earn 5 tokens per correct answer. Up to 20 rounds per UTC day (100 tokens maximum). One submission per round; rounds expire after 5 minutes. Starting a new round ends the previous one. This game is separate from paused AI-practice rewards.</p>
+<p>Token balance: <strong id="game-balance">—</strong></p><button id="math-start" class="primary-button" type="button" disabled>New round</button><p id="math-question" aria-live="polite">Ready to play?</p>
+<form id="math-form" class="workspace-form" hidden><label>Your answer<input id="math-answer" type="number" step="1" min="-2147483648" max="2147483647" required></label><button id="math-submit" class="primary-button" type="submit">Submit answer</button></form>
+<p id="math-status" class="workspace-status" role="status"></p><a class="secondary-button" href="shop.html">Spend tokens in the shop</a></section></div></main></body></html>

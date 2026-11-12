@@ -22,6 +22,10 @@
     const host = document.querySelector('.topbar, .messages-heading-actions, .messages-heading');
     if (host) host.appendChild(button);
     else { button.classList.add('color-mode-floating'); document.body.appendChild(button); }
+    const workspace = document.createElement('a');
+    workspace.href = 'workspace.html'; workspace.className = 'secondary-button'; workspace.textContent = 'Tasks & Games';
+    if (host) host.appendChild(workspace);
+    else document.querySelector('main')?.prepend(workspace);
     button.addEventListener('click', () => {
       savedMode = root.dataset.mode === 'light' ? 'dark' : 'light';
       try { localStorage.setItem('ai-tutor-color-mode', savedMode); } catch {}
