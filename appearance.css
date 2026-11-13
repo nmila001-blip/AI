@@ -40,3 +40,18 @@ html[data-mode=light] .chat-notification-toast p { color:#455570; }
 html[data-mode=light] .call-error,html[data-mode=light] .message-status,html[data-mode=light] #push-notification-status { color:#a21d38!important; }
 html[data-mode=light] .form-message,html[data-mode=light] .shop-status { color:#17623b; }
 @media(max-width:650px) { #color-mode-toggle { min-height:42px; } .topbar { flex-wrap:wrap; } #call-ringtone-select { min-width:130px; max-width:100%; } }
+
+/* Keep every desktop navigation link reachable on short screens. */
+@media (min-width:651px) {
+  .sidebar {
+    height:100vh;
+    height:100dvh;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior-y:contain;
+    scrollbar-gutter:stable;
+    scroll-padding-block:12px;
+  }
+  .sidebar > * { flex-shrink:0; }
+}
